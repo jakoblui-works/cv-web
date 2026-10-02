@@ -6,9 +6,12 @@
     "**/routeTree.gen.ts": true
   },
   "files.readonlyInclude": {
-    "**/routeTree.gen.ts": true
+    "**/routeTree.gen.ts": true,
+    "src/api/generated/**": true
   },
   "files.associations": {
     "*.css": "tailwindcss"
-  }
+  },
+  "typescript.suggest.autoImports": true,
+  "typescript.preferences.includePackageJsonAutoImports": "on"
 }

@@ -1,26 +1,33 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { RouterProvider, createRouter } from '@tanstack/react-router'
-import { routeTree } from './routeTree.gen'
-import './styles.css'
-
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { RouterProvider, createRouter } from "@tanstack/react-router";
+import ReactDOM from "react-dom/client";
+import { routeTree } from "./routeTree.gen";
+import "./styles.css";
 // Set up a Router instance
 const router = createRouter({
   routeTree,
-  defaultPreload: 'intent',
+  defaultPreload: "intent",
   scrollRestoration: true,
-})
+});
 
 // Register things for typesafety
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface Register {
-    router: typeof router
+    router: typeof router;
   }
 }
 
-const rootElement = document.getElementById('app')!
+const queryClient = new QueryClient();
+
+const rootElement = document.getElementById("app")!;
 
 if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement)
-  root.render(<RouterProvider router={router} />)
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <QueryClientProvider client={queryClient}>
+      <ReactQueryDevtools />
+      <RouterProvider router={router} />
+    </QueryClientProvider>,
+  );
 }

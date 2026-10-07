@@ -4,7 +4,7 @@ import { defineConfig } from "orval";
 export default defineConfig({
   cv: {
     input: {
-      target: "http://localhost:8000/openapi.json",
+      target: "https://cv.jakoblui.com/api/openapi.json",
       filters: { tags: ["cv"] },
     },
     output: {

@@ -3,6 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import process from "process";
 import { defineConfig } from "vite";
 
 // https://vitejs.dev/config/
@@ -26,8 +27,11 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      // The target includes any base path, so `/api` is always stripped:
+      // localhost:8000 serves /cv/..., prod serves /api/cv/... (Traefik strips /api).
       "/api": {
-        target: "http://localhost:8000",
+        target: process.env.API_PROXY_TARGET ?? "http://localhost:8000",
+        changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },

@@ -18,7 +18,7 @@ function HomeComponent() {
     optionsQuery.data?.status === 200 ? optionsQuery.data.data : undefined;
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-xl flex-col gap-6 px-4 py-12">
+    <main className="mx-auto flex w-full max-w-xl flex-col gap-6 px-4 py-12">
       <h1 className="text-2xl font-semibold">Tailored CV</h1>
       {optionsQuery.isPending && (
         <p className="text-muted-foreground">Loading options…</p>

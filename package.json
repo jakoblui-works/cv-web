@@ -5,6 +5,7 @@
   "packageManager": "pnpm@12.4.2",
   "scripts": {
     "dev": "vite --port 3000",
+    "dev:prod": "API_PROXY_TARGET=https://cv.jakoblui.com/api vite --port 3000",
     "build": "vite build && tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",

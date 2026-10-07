@@ -1,18 +1,56 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 
 import { useCvGetOptions } from "@/api/generated/cv/cv";
-import { CvForm, type CvSelection } from "@/components/cv-form";
+import type { FormOptionsResponseOutput } from "@/api/generated/model";
+import { CvForm } from "@/components/cv-form";
+import { Button } from "@/components/ui/button";
+import {
+  cvSearchSchema,
+  fromCvSearch,
+  sameSelection,
+  toCvSearch,
+  type CvSelection,
+} from "@/lib/cv-search";
 
 export const Route = createFileRoute("/")({
   component: HomeComponent,
+  validateSearch: cvSearchSchema,
 });
 
-const emptySelection: CvSelection = { conceptIds: [], skillIds: [] };
+type CvEditorProps = {
+  options: FormOptionsResponseOutput;
+  committed: CvSelection;
+};
+
+function CvEditor({ options, committed }: CvEditorProps) {
+  const navigate = Route.useNavigate();
+  const [draft, setDraft] = useState<CvSelection>(committed);
+  const canGenerate =
+    draft.titleId !== undefined &&
+    draft.skillIds.length > 0 &&
+    !sameSelection(draft, committed);
+
+  const onSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!canGenerate) return;
+    navigate({ search: toCvSearch(draft) });
+  };
+
+  return (
+    <form onSubmit={onSubmit} className="flex flex-col gap-6">
+      <CvForm options={options} value={draft} onChange={setDraft} />
+      <Button type="submit" disabled={!canGenerate} className="self-start">
+        Generate
+      </Button>
+    </form>
+  );
+}
 
 function HomeComponent() {
   const optionsQuery = useCvGetOptions();
-  const [selection, setSelection] = useState<CvSelection>(emptySelection);
+  const search = Route.useSearch();
+  const committed = fromCvSearch(search);
 
   const options =
     optionsQuery.data?.status === 200 ? optionsQuery.data.data : undefined;
@@ -27,7 +65,11 @@ function HomeComponent() {
         <p className="text-destructive">Couldn&rsquo;t load the CV options.</p>
       )}
       {options !== undefined && (
-        <CvForm options={options} value={selection} onChange={setSelection} />
+        <CvEditor
+          key={JSON.stringify(toCvSearch(committed))}
+          options={options}
+          committed={committed}
+        />
       )}
     </main>
   );

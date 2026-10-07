@@ -4,7 +4,9 @@ import { expect, fn, screen, waitFor, within } from "storybook/test";
 
 import type { FormOptionsResponseOutput } from "@/api/generated/model";
 
-import { CvForm, type CvSelection } from "./cv-form";
+import type { CvSelection } from "@/lib/cv-search";
+
+import { CvForm } from "./cv-form";
 
 const options: FormOptionsResponseOutput = {
   titles: [

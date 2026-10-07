@@ -28,12 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-export type CvSelection = {
-  titleId?: string;
-  conceptIds: string[];
-  skillIds: string[];
-};
+import type { CvSelection } from "@/lib/cv-search";
 
 type CvFormProps = {
   options: FormOptionsResponseOutput;

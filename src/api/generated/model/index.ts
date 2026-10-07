@@ -5,9 +5,17 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './cvGenerateBody.zod';
 export * from './cvPingBody.zod';
+export * from './errorResponse.zod';
+export * from './formOption.zod';
+export * from './formOptionsResponse.zod';
+export * from './generateRequest.zod';
+export * from './generateStartedResponse.zod';
+export * from './generateStatusResponse.zod';
 export * from './hTTPValidationError.zod';
 export * from './pingRequest.zod';
 export * from './pingStartedResponse.zod';
 export * from './pingStatusResponse.zod';
+export * from './skillGroup.zod';
 export * from './validationError.zod';

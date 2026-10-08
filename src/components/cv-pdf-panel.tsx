@@ -41,7 +41,7 @@ export const CvPdfPanel = ({
     const status = (
       <div className="flex flex-col items-center gap-3 text-muted-foreground">
         <Spinner className="size-6" />
-        <p aria-live="polite">Generating your CV…</p>
+        <p aria-live="polite">Generating CV…</p>
       </div>
     );
     return inline ? (

@@ -6,6 +6,7 @@ Frontend for cv.jakoblui.com: choose a title, concepts and skills, generate a ta
 ```sh
 pnpm install
 pnpm dev               # http://localhost:3000; /api is proxied to the api on :8000 (prefix stripped)
+pnpm dev:prod          # same, but proxied to the prod api (generate is rate-limited; PDFs land in the prod bucket)
 pnpm lint
 pnpm test              # Vitest, including Storybook stories in a Playwright browser
 pnpm build             # vite build + tsc --noEmit

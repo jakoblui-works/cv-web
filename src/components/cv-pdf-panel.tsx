@@ -1,0 +1,124 @@
+import { DownloadIcon, ExternalLinkIcon } from "lucide-react";
+
+import type { CvGeneration } from "@/api/cv";
+import { getCvGetPdfUrl } from "@/api/generated/cv/cv";
+import { buttonVariants } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
+
+type CvPdfPanelProps = {
+  generation: CvGeneration;
+  /** File name the Download link saves the PDF as. */
+  fileName: string;
+  /**
+   * Show the PDF in the page. Phone browsers don't show inline PDFs reliably,
+   * so without it the panel is a compact card with only the links.
+   */
+  inline: boolean;
+};
+
+/**
+ * Viewer open parameters for the inline PDF: hide the bookmarks sidebar (Chrome: `navpanes`,
+ * Firefox: `pagemode`) and fit the whole page in the frame.
+ */
+const VIEWER_PARAMS = "#navpanes=0&pagemode=none&view=Fit";
+
+/** Fills the panel's height, so the whole PDF fits on screen next to the form. */
+const pageClassName = "min-h-0 w-full flex-1 rounded-md border";
+
+const cardClassName =
+  "flex flex-col items-center gap-4 rounded-md border p-6 text-center";
+
+/** The generated CV: a processing state, then Open and Download links and, if `inline`, the PDF. */
+export const CvPdfPanel = ({
+  generation,
+  fileName,
+  inline,
+}: CvPdfPanelProps) => {
+  if (generation.status === "idle") return null;
+
+  if (generation.status === "processing") {
+    const status = (
+      <div className="flex flex-col items-center gap-3 text-muted-foreground">
+        <Spinner className="size-6" />
+        <p aria-live="polite">Generating your CV…</p>
+      </div>
+    );
+    return inline ? (
+      <div className="flex h-full flex-col">
+        <div className={`${pageClassName} relative overflow-hidden`}>
+          <Skeleton className="absolute inset-0 rounded-none" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            {status}
+          </div>
+        </div>
+      </div>
+    ) : (
+      <div className={cardClassName}>{status}</div>
+    );
+  }
+
+  if (generation.status === "failed") {
+    const message = <>Couldn&rsquo;t generate the CV.</>;
+    return inline ? (
+      <div className="flex h-full flex-col">
+        <div
+          role="alert"
+          className={`${pageClassName} flex items-center justify-center p-6 text-center text-destructive`}
+        >
+          {message}
+        </div>
+      </div>
+    ) : (
+      <div role="alert" className={`${cardClassName} text-destructive`}>
+        {message}
+      </div>
+    );
+  }
+
+  const pdfUrl = getCvGetPdfUrl(generation.digest);
+  const linkClassName = buttonVariants({
+    variant: inline ? "outline" : "default",
+    size: inline ? "default" : "lg",
+    className: inline ? undefined : "w-full",
+  });
+  const links = (
+    <div
+      className={inline ? "flex flex-wrap gap-2" : "flex w-full flex-col gap-2"}
+    >
+      <a
+        href={pdfUrl}
+        target="_blank"
+        rel="noreferrer"
+        className={linkClassName}
+      >
+        <ExternalLinkIcon aria-hidden />
+        Open PDF
+      </a>
+      <a href={pdfUrl} download={fileName} className={linkClassName}>
+        <DownloadIcon aria-hidden />
+        Download PDF
+      </a>
+    </div>
+  );
+
+  if (!inline) {
+    return (
+      <div className={cardClassName}>
+        <p className="font-medium">CV is ready.</p>
+        {links}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-full flex-col gap-4">
+      {links}
+      <iframe
+        src={`${pdfUrl}${VIEWER_PARAMS}`}
+        title="Generated CV"
+        className={`${pageClassName} bg-muted`}
+      />
+    </div>
+  );
+};

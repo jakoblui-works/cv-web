@@ -4,12 +4,15 @@ import { describe, expect } from "vitest";
 import {
   canonicalSelection,
   fromCvSearch,
+  isValidSelection,
   sameSelection,
   toCvSearch,
   type CvSelection,
 } from "./cv-search";
 
 const id = fc.stringMatching(/^[a-z0-9]+(-[a-z0-9]+)*$/);
+
+const blank = fc.stringMatching(/^\s*$/);
 
 const selection = fc.record({
   titleId: fc.option(id, { nil: undefined }),
@@ -34,7 +37,9 @@ describe("toCvSearch / fromCvSearch", () => {
     expect(fromCvSearch(toCvSearch(s))).toEqual(canonicalSelection(s));
   });
 
-  test.prop([selection.chain((s) => fc.tuple(fc.constant(s), shuffledWithDuplicates(s)))])(
+  test.prop([
+    selection.chain((s) => fc.tuple(fc.constant(s), shuffledWithDuplicates(s))),
+  ])(
     "gives the same search regardless of id order or duplicates",
     ([s, shuffled]) => {
       expect(toCvSearch(shuffled)).toEqual(toCvSearch(s));
@@ -52,7 +57,8 @@ describe("toCvSearch / fromCvSearch", () => {
     const search = toCvSearch(s);
     const messy = {
       ...search,
-      concepts: search.concepts && `, ${search.concepts.split(",").join(" ,, ")} ,`,
+      concepts:
+        search.concepts && `, ${search.concepts.split(",").join(" ,, ")} ,`,
       skills: search.skills && `${search.skills},,`,
     };
     expect(fromCvSearch(messy)).toEqual(fromCvSearch(search));
@@ -67,16 +73,17 @@ describe("canonicalSelection", () => {
 });
 
 describe("sameSelection", () => {
-  test.prop([selection.chain((s) => fc.tuple(fc.constant(s), shuffledWithDuplicates(s)))])(
-    "treats reordered or repeated ids as the same",
-    ([s, shuffled]) => {
-      expect(sameSelection(s, shuffled)).toBe(true);
-    },
-  );
+  test.prop([
+    selection.chain((s) => fc.tuple(fc.constant(s), shuffledWithDuplicates(s))),
+  ])("treats reordered or repeated ids as the same", ([s, shuffled]) => {
+    expect(sameSelection(s, shuffled)).toBe(true);
+  });
 
   test.prop([selection, id])("notices an added skill", (s, extra) => {
     fc.pre(!s.skillIds.includes(extra));
-    expect(sameSelection(s, { ...s, skillIds: [...s.skillIds, extra] })).toBe(false);
+    expect(sameSelection(s, { ...s, skillIds: [...s.skillIds, extra] })).toBe(
+      false,
+    );
   });
 
   test.prop([selection, id])("notices a different title", (s, other) => {
@@ -87,4 +94,40 @@ describe("sameSelection", () => {
   test.prop([selection, selection])("is symmetric", (a, b) => {
     expect(sameSelection(a, b)).toBe(sameSelection(b, a));
   });
+});
+
+describe("isValidSelection", () => {
+  test.prop([selection])("needs a title", (s) => {
+    expect(isValidSelection({ ...s, titleId: undefined })).toBe(false);
+  });
+
+  test.prop([selection])("needs at least one skill", (s) => {
+    expect(isValidSelection({ ...s, skillIds: [] })).toBe(false);
+  });
+
+  test.prop([selection, id, id])(
+    "is valid with a title and a skill",
+    (s, title, extra) => {
+      expect(
+        isValidSelection({
+          ...s,
+          titleId: title,
+          skillIds: [...s.skillIds, extra],
+        }),
+      ).toBe(true);
+    },
+  );
+
+  test.prop([selection, blank])("doesn't count a blank title", (s, title) => {
+    expect(isValidSelection({ ...s, titleId: title })).toBe(false);
+  });
+
+  test.prop([selection, id, fc.array(blank, { minLength: 1 })])(
+    "doesn't count blank skills",
+    (s, title, skills) => {
+      expect(
+        isValidSelection({ ...s, titleId: title, skillIds: skills }),
+      ).toBe(false);
+    },
+  );
 });

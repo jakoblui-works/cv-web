@@ -88,7 +88,7 @@ export const NoMatches: Story = {
   },
 };
 
-function MultipleWithChips(args: Story["args"]) {
+const MultipleWithChips = (args: Story["args"]) => {
   const anchor = useComboboxAnchor();
   return (
     <Combobox multiple items={languages} {...args}>
@@ -113,7 +113,7 @@ function MultipleWithChips(args: Story["args"]) {
       </ComboboxContent>
     </Combobox>
   );
-}
+};
 
 export const Multiple: Story = {
   render: (args) => <MultipleWithChips {...args} />,

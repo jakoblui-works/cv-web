@@ -5,7 +5,7 @@ import { THEME_STORAGE_KEY, ThemeToggle } from "./theme-toggle";
 
 const root = document.documentElement;
 
-function setStartingTheme(dark: boolean) {
+const setStartingTheme = (dark: boolean) => {
   const hadDark = root.classList.contains("dark");
   const stored = localStorage.getItem(THEME_STORAGE_KEY);
   root.classList.toggle("dark", dark);
@@ -15,7 +15,7 @@ function setStartingTheme(dark: boolean) {
     if (stored === null) localStorage.removeItem(THEME_STORAGE_KEY);
     else localStorage.setItem(THEME_STORAGE_KEY, stored);
   };
-}
+};
 
 const meta: Meta<typeof ThemeToggle> = {
   title: "Components/ThemeToggle",

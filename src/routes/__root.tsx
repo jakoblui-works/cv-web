@@ -2,11 +2,7 @@ import { Outlet, createRootRoute } from "@tanstack/react-router";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export const Route = createRootRoute({
-  component: RootComponent,
-});
-
-function RootComponent() {
+const RootComponent = () => {
   return (
     <>
       <header className="border-b">
@@ -31,4 +27,8 @@ function RootComponent() {
       <Outlet />
     </>
   );
-}
+};
+
+export const Route = createRootRoute({
+  component: RootComponent,
+});

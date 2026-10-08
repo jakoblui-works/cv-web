@@ -47,7 +47,7 @@ const optionAccessors = {
   getLabel: (option: FormOptionOutput) => option.label,
 };
 
-export function CvForm({ options, value, onChange }: CvFormProps) {
+export const CvForm = ({ options, value, onChange }: CvFormProps) => {
   const titleLabels = useMemo(
     () => Object.fromEntries(options.titles.map((t) => [t.id, t.label])),
     [options.titles],
@@ -106,11 +106,11 @@ export function CvForm({ options, value, onChange }: CvFormProps) {
       />
     </FieldGroup>
   );
-}
+};
 
-function OptionItem({ option }: { option: FormOptionOutput }) {
+const OptionItem = ({ option }: { option: FormOptionOutput }) => {
   return <ComboboxItem value={option.id}>{option.label}</ComboboxItem>;
-}
+};
 
 type MultiOptionFieldProps = {
   id: string;
@@ -121,14 +121,14 @@ type MultiOptionFieldProps = {
   onChange: (ids: string[]) => void;
 };
 
-function MultiOptionField({
+const MultiOptionField = ({
   id,
   label,
   placeholder,
   data,
   value,
   onChange,
-}: MultiOptionFieldProps) {
+}: MultiOptionFieldProps) => {
   const anchor = useComboboxAnchor();
   const items = useMemo(
     () => ComboboxPrimitive.createItems(data, optionAccessors),
@@ -190,4 +190,4 @@ function MultiOptionField({
       </Combobox>
     </Field>
   );
-}
+};

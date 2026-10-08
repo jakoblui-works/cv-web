@@ -40,7 +40,7 @@ const empty: CvSelection = { conceptIds: [], skillIds: [] };
 type Args = React.ComponentProps<typeof CvForm>;
 
 /** Keeps the selection in local state, like the route will, and reports every change. */
-function Controlled({ options, value, onChange }: Args) {
+const Controlled = ({ options, value, onChange }: Args) => {
   const [selection, setSelection] = useState(value);
   return (
     <div className="w-96">
@@ -54,7 +54,7 @@ function Controlled({ options, value, onChange }: Args) {
       />
     </div>
   );
-}
+};
 
 const meta: Meta<typeof CvForm> = {
   title: "CV/CvForm",

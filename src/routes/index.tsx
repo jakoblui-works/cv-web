@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 
+import { useCvGeneration } from "@/api/cv";
 import { useCvGetOptions } from "@/api/generated/cv/cv";
 import type { FormOptionsResponseOutput } from "@/api/generated/model";
 import { CvForm } from "@/components/cv-form";
@@ -8,28 +9,22 @@ import { Button } from "@/components/ui/button";
 import {
   cvSearchSchema,
   fromCvSearch,
+  isValidSelection,
   sameSelection,
   toCvSearch,
   type CvSelection,
 } from "@/lib/cv-search";
-
-export const Route = createFileRoute("/")({
-  component: HomeComponent,
-  validateSearch: cvSearchSchema,
-});
 
 type CvEditorProps = {
   options: FormOptionsResponseOutput;
   committed: CvSelection;
 };
 
-function CvEditor({ options, committed }: CvEditorProps) {
+const CvEditor = ({ options, committed }: CvEditorProps) => {
   const navigate = Route.useNavigate();
   const [draft, setDraft] = useState<CvSelection>(committed);
   const canGenerate =
-    draft.titleId !== undefined &&
-    draft.skillIds.length > 0 &&
-    !sameSelection(draft, committed);
+    isValidSelection(draft) && !sameSelection(draft, committed);
 
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -45,9 +40,9 @@ function CvEditor({ options, committed }: CvEditorProps) {
       </Button>
     </form>
   );
-}
+};
 
-function HomeComponent() {
+const HomeComponent = () => {
   const optionsQuery = useCvGetOptions();
   const search = Route.useSearch();
   const committed = fromCvSearch(search);
@@ -64,6 +59,7 @@ function HomeComponent() {
       {!optionsQuery.isPending && options === undefined && (
         <p className="text-destructive">Couldn&rsquo;t load the CV options.</p>
       )}
+
       {options !== undefined && (
         <CvEditor
           key={JSON.stringify(toCvSearch(committed))}
@@ -71,6 +67,12 @@ function HomeComponent() {
           committed={committed}
         />
       )}
+      {JSON.stringify(useCvGeneration(committed))}
     </main>
   );
-}
+};
+
+export const Route = createFileRoute("/")({
+  component: HomeComponent,
+  validateSearch: cvSearchSchema,
+});

@@ -7,15 +7,15 @@ import { Switch } from "@/components/ui/switch";
 /** Must match the key read by the inline script in index.html. */
 export const THEME_STORAGE_KEY = "theme";
 
-function isDark() {
+const isDark = () => {
   return document.documentElement.classList.contains("dark");
-}
+};
 
-function prefersReducedMotion() {
+const prefersReducedMotion = () => {
   return matchMedia("(prefers-reduced-motion: reduce)").matches;
-}
+};
 
-export function ThemeToggle() {
+export const ThemeToggle = () => {
   // index.html has already applied the stored or system theme before React mounts.
   const [dark, setDark] = useState(isDark);
 
@@ -53,4 +53,4 @@ export function ThemeToggle() {
       <MoonIcon className="size-4" aria-hidden />
     </div>
   );
-}
+};

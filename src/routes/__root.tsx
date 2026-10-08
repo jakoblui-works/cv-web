@@ -5,8 +5,8 @@ import { ThemeToggle } from "@/components/theme-toggle";
 const RootComponent = () => {
   return (
     <>
-      <header className="border-b">
-        <div className="mx-auto flex h-14 w-full max-w-6xl items-center justify-between px-4">
+      <header className="h-header border-b">
+        <div className="mx-auto flex h-full w-full max-w-6xl items-center justify-between px-4">
           <a
             href="https://jakoblui.com"
             className="flex items-center gap-2.5 rounded-md outline-none focus-visible:ring-3 focus-visible:ring-ring/50"

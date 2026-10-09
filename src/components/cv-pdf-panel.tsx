@@ -3,30 +3,20 @@ import { useState, type ComponentProps } from "react";
 
 import type { CvGeneration } from "@/api/cv";
 import { getCvGetPdfUrl } from "@/api/generated/cv/cv";
+import { CopyLinkField } from "@/components/copy-link-field";
 import { buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 
 type CvPdfPanelProps = {
   generation: CvGeneration;
-  /** File name the Download link saves the PDF as. */
+  shareUrl: string;
   fileName: string;
-  /**
-   * Show the PDF in the page. Phone browsers don't show inline PDFs reliably, and some browsers
-   * download PDFs instead, so without it the panel is a compact card with only the links.
-   */
   inline: boolean;
 };
 
-/**
- * Viewer open parameters for the inline PDF: hide the bookmarks sidebar (Chrome: `navpanes`,
- * Firefox: `pagemode`) and fit the whole page in the frame.
- */
 const VIEWER_PARAMS = "#navpanes=0&pagemode=none&view=Fit";
-
-/** Fills the panel's height, so the whole PDF fits on screen next to the form. */
 const pageClassName = "min-h-0 w-full flex-1 rounded-md border";
-
 const cardClassName =
   "flex flex-col items-center gap-4 rounded-md border p-6 text-center";
 
@@ -37,7 +27,6 @@ const ProcessingStatus = () => (
   </div>
 );
 
-/** The processing look of the inline page: a skeleton with the status on top. */
 const PagePlaceholder = (props: ComponentProps<"div">) => (
   <div className="absolute inset-0" {...props}>
     <Skeleton className="absolute inset-0 rounded-none" />
@@ -47,10 +36,6 @@ const PagePlaceholder = (props: ComponentProps<"div">) => (
   </div>
 );
 
-/**
- * The inline PDF, kept invisible over the processing placeholder until the viewer has loaded,
- * so the viewer building itself (blank frame, toolbar, then the page) never shows.
- */
 const CvPdfFrame = ({ src }: { src: string }) => {
   const [loaded, setLoaded] = useState(false);
   return (
@@ -66,9 +51,9 @@ const CvPdfFrame = ({ src }: { src: string }) => {
   );
 };
 
-/** The generated CV: a processing state, then Open and Download links and, if `inline`, the PDF. */
 export const CvPdfPanel = ({
   generation,
+  shareUrl,
   fileName,
   inline,
 }: CvPdfPanelProps) => {
@@ -110,11 +95,12 @@ export const CvPdfPanel = ({
   const linkClassName = buttonVariants({
     variant: inline ? "outline" : "default",
     size: inline ? "default" : "lg",
-    className: inline ? undefined : "w-full",
   });
   const links = (
     <div
-      className={inline ? "flex flex-wrap gap-2" : "flex w-full flex-col gap-2"}
+      className={
+        inline ? "flex shrink-0 gap-2" : "grid w-full grid-cols-2 gap-2"
+      }
     >
       <a
         href={pdfUrl}
@@ -123,11 +109,11 @@ export const CvPdfPanel = ({
         className={linkClassName}
       >
         <ExternalLinkIcon aria-hidden />
-        Open PDF
+        Open<span className="sr-only"> PDF</span>
       </a>
       <a href={pdfUrl} download={fileName} className={linkClassName}>
         <DownloadIcon aria-hidden />
-        Download PDF
+        Download<span className="sr-only"> PDF</span>
       </a>
     </div>
   );
@@ -136,6 +122,7 @@ export const CvPdfPanel = ({
     return (
       <div className={cardClassName}>
         <p className="font-medium">CV is ready.</p>
+        <CopyLinkField url={shareUrl} className="text-left" />
         {links}
       </div>
     );
@@ -143,7 +130,10 @@ export const CvPdfPanel = ({
 
   return (
     <div className="flex h-full flex-col gap-4">
-      {links}
+      <div className="flex items-center gap-2">
+        <CopyLinkField url={shareUrl} className="min-w-0 flex-1" />
+        {links}
+      </div>
       {/* Keyed by the PDF, so a new CV starts hidden again until it has loaded. */}
       <CvPdfFrame key={pdfUrl} src={`${pdfUrl}${VIEWER_PARAMS}`} />
     </div>

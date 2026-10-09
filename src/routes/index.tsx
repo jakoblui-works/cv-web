@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useLocation } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 
 import { useCvGeneration } from "@/api/cv";
@@ -60,8 +60,9 @@ const HomeComponent = () => {
 
   const generation = useCvGeneration(committed);
   const largeScreen = useMediaQuery(LARGE_SCREEN_QUERY);
-  // Browsers set to download PDFs never fire the iframe's load, so the inline PDF would never show.
   const inlinePdf = largeScreen && navigator.pdfViewerEnabled;
+  const shareUrl =
+    window.location.origin + useLocation({ select: (l) => l.href });
 
   const options =
     optionsQuery.data?.status === 200 ? optionsQuery.data.data : undefined;
@@ -85,7 +86,6 @@ const HomeComponent = () => {
     </div>
   );
 
-  // The committed selection only changes on load or Generate, so the layout does too.
   if (!isValidSelection(committed)) {
     return (
       <main className="mx-auto w-full max-w-xl px-4 pt-24 pb-12 sm:pt-36">
@@ -95,15 +95,13 @@ const HomeComponent = () => {
   }
 
   return (
-    // From lg up the result fills the viewport below the header, so the PDF fits on screen
-    // next to the form and only the form column scrolls if it's taller.
-    // Below lg the result card comes first, above the form.
     <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-8 lg:h-[calc(100dvh-var(--spacing-header))] lg:grid-cols-[minmax(0,22rem)_auto_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
       <div className="lg:-m-1 lg:overflow-y-auto lg:p-1 lg:pt-16">{editor}</div>
       <Separator orientation="vertical" className="hidden lg:block" />
       <div className="order-first lg:order-0 [view-transition-name:cv-result]">
         <CvPdfPanel
           generation={generation}
+          shareUrl={shareUrl}
           fileName={`Jakob-Lui-CV-${committed.titleId}.pdf`}
           inline={inlinePdf}
         />

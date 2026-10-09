@@ -8,7 +8,11 @@ import { CvPdfPanel } from "./cv-pdf-panel";
 const meta: Meta<typeof CvPdfPanel> = {
   title: "CV/CvPdfPanel",
   component: CvPdfPanel,
-  args: { fileName: "cv.pdf", inline: true },
+  args: {
+    fileName: "cv.pdf",
+    shareUrl: "https://cv.example.com/?title=title-a&skills=skill-a1",
+    inline: true,
+  },
   decorators: [
     // Inline, the panel fills its container's height, like the desktop result layout.
     (Story, { args }) => (
@@ -29,6 +33,7 @@ export const Processing: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("status")).toBeVisible();
     await expect(canvas.queryByRole("link")).toBeNull();
+    await expect(canvas.queryByRole("textbox")).toBeNull();
     await expect(canvas.queryByTitle("Generated CV")).toBeNull();
   },
 };
@@ -37,6 +42,10 @@ export const Done: Story = {
   args: { generation: done },
   play: async ({ args, canvas }) => {
     const pdfUrl = getCvGetPdfUrl(done.digest);
+
+    await expect(
+      canvas.getByRole("textbox", { name: "Link to this CV" }),
+    ).toHaveValue(args.shareUrl);
 
     const open = canvas.getByRole("link", { name: "Open PDF" });
     await expect(open).toHaveAttribute("href", pdfUrl);
@@ -62,6 +71,7 @@ export const Failed: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("alert")).toBeVisible();
     await expect(canvas.queryByRole("link")).toBeNull();
+    await expect(canvas.queryByRole("textbox")).toBeNull();
     await expect(canvas.queryByTitle("Generated CV")).toBeNull();
   },
 };
@@ -83,6 +93,9 @@ export const DoneOnPhone: Story = {
   play: async ({ args, canvas }) => {
     const pdfUrl = getCvGetPdfUrl(done.digest);
 
+    await expect(
+      canvas.getByRole("textbox", { name: "Link to this CV" }),
+    ).toHaveValue(args.shareUrl);
     await expect(
       canvas.getByRole("link", { name: "Open PDF" }),
     ).toHaveAttribute("href", pdfUrl);

@@ -28,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { CvSelection } from "@/lib/cv-search";
 
 type CvFormProps = {
@@ -107,6 +108,23 @@ export const CvForm = ({ options, value, onChange }: CvFormProps) => {
     </FieldGroup>
   );
 };
+
+const FIELD_LABELS = ["Title", "Concepts", "Skills"];
+
+/** The form's shape while the options load: the real labels, with a placeholder per field. */
+export const CvFormSkeleton = () => (
+  <FieldGroup>
+    <span role="status" className="sr-only">
+      Loading options…
+    </span>
+    {FIELD_LABELS.map((label) => (
+      <Field key={label} aria-hidden>
+        <FieldLabel>{label}</FieldLabel>
+        <Skeleton className="h-9 w-full bg-input/60" />
+      </Field>
+    ))}
+  </FieldGroup>
+);
 
 const OptionItem = ({ option }: { option: FormOptionOutput }) => {
   return <ComboboxItem value={option.id}>{option.label}</ComboboxItem>;

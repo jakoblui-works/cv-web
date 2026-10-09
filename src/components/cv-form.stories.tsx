@@ -6,7 +6,7 @@ import type { FormOptionsResponseOutput } from "@/api/generated/model";
 
 import type { CvSelection } from "@/lib/cv-search";
 
-import { CvForm } from "./cv-form";
+import { CvForm, CvFormSkeleton } from "./cv-form";
 
 const options: FormOptionsResponseOutput = {
   titles: [
@@ -201,5 +201,21 @@ export const UnknownIdsShowAsIds: Story = {
   args: { value: { ...empty, skillIds: ["removed-skill"] } },
   play: async ({ canvas }) => {
     await expect(canvas.getByText("removed-skill")).toBeVisible();
+  },
+};
+
+/** While the options load: the real labels with placeholders, announced once to screen readers. */
+export const Loading: Story = {
+  render: () => (
+    <div className="w-96">
+      <CvFormSkeleton />
+    </div>
+  ),
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole("status")).toHaveTextContent("Loading options…");
+    await expect(canvas.queryByRole("combobox")).toBeNull();
+    for (const label of ["Title", "Concepts", "Skills"]) {
+      await expect(canvas.getByText(label)).toBeVisible();
+    }
   },
 };

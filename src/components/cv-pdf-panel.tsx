@@ -7,6 +7,7 @@ import { CopyLinkField } from "@/components/copy-link-field";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
+import { cn } from "@/lib/utils";
 
 type CvPdfPanelProps = {
   generation: CvGeneration;
@@ -22,7 +23,7 @@ type CvPdfPanelProps = {
 const VIEWER_PARAMS = "#navpanes=0&pagemode=none&view=Fit";
 const pageClassName = "min-h-0 w-full flex-1 rounded-md border";
 const cardClassName =
-  "flex flex-col items-center gap-4 rounded-md border p-6 text-center";
+  "flex flex-col items-center gap-4 rounded-md border bg-surface p-6 text-center";
 
 const FAILURE_MESSAGES: Record<CvFailureReason, string> = {
   error: "Something went wrong while generating the CV.",
@@ -123,10 +124,13 @@ export const CvPdfPanel = ({
   }
 
   const pdfUrl = getCvGetPdfUrl(generation.digest);
-  const linkClassName = buttonVariants({
-    variant: inline ? "outline" : "default",
-    size: inline ? "default" : "lg",
-  });
+  // Through cn, like Button does, so the variant's border wins over the base `border-transparent`.
+  const linkClassName = cn(
+    buttonVariants({
+      variant: inline ? "outline" : "default",
+      size: inline ? "default" : "lg",
+    }),
+  );
   const links = (
     <div
       className={

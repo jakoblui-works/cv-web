@@ -6,7 +6,7 @@ import { useCvGeneration } from "@/api/cv";
 import { ApiError } from "@/api/fetcher";
 import { useCvGetOptions } from "@/api/generated/cv/cv";
 import type { FormOptionsResponseOutput } from "@/api/generated/model";
-import { CvForm } from "@/components/cv-form";
+import { CvForm, CvFormSkeleton } from "@/components/cv-form";
 import { CvPdfPanel } from "@/components/cv-pdf-panel";
 import { OptionsLoadError } from "@/components/options-load-error";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,26 @@ import {
   toCvSearch,
   type CvSelection,
 } from "@/lib/cv-search";
+
+const GenerateButton = ({ disabled }: { disabled: boolean }) => (
+  <Button
+    type="submit"
+    size="lg"
+    disabled={disabled}
+    className="mt-4 min-w-40 self-center px-6 text-base [view-transition-name:cv-generate]"
+  >
+    <SparklesIcon aria-hidden />
+    Generate
+  </Button>
+);
+
+/** `CvEditor`'s layout while the options load, so the real form replaces it without moving. */
+const CvEditorSkeleton = () => (
+  <div className="flex flex-col gap-6">
+    <CvFormSkeleton />
+    <GenerateButton disabled />
+  </div>
+);
 
 type CvEditorProps = {
   options: FormOptionsResponseOutput;
@@ -46,15 +66,7 @@ const CvEditor = ({ options, committed, failed }: CvEditorProps) => {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-6">
       <CvForm options={options} value={draft} onChange={setDraft} />
-      <Button
-        type="submit"
-        size="lg"
-        disabled={!canGenerate}
-        className="mt-4 min-w-40 self-center px-6 text-base [view-transition-name:cv-generate]"
-      >
-        <SparklesIcon aria-hidden />
-        Generate
-      </Button>
+      <GenerateButton disabled={!canGenerate} />
       {failed && sameSelection(draft, committed) && (
         <p className="-mt-2 text-center text-sm text-destructive">
           Couldn&rsquo;t generate the CV.
@@ -89,9 +101,7 @@ const HomeComponent = () => {
   const editor = (
     <div className="flex flex-col gap-6 [view-transition-name:cv-editor]">
       <h1 className="text-2xl font-semibold">Tailored CV</h1>
-      {optionsQuery.isPending && (
-        <p className="text-muted-foreground">Loading options…</p>
-      )}
+      {optionsQuery.isPending && <CvEditorSkeleton />}
       {!optionsQuery.isPending && options === undefined && (
         <OptionsLoadError error={optionsQuery.error} />
       )}

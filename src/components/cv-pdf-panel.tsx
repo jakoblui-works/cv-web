@@ -27,6 +27,7 @@ const cardClassName =
 const FAILURE_MESSAGES: Record<CvFailureReason, string> = {
   error: "Something went wrong while generating the CV.",
   "rate-limited": "Too many requests. Try again in a minute.",
+  "timed-out": "Generating the CV is taking too long.",
   "invalid-selection":
     "Some selected items are no longer available. Clear the selection to start over.",
 };

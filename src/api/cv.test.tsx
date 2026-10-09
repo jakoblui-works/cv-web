@@ -2,10 +2,15 @@ import { fc, test } from "@fast-check/vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import { failureReason, useCvGeneration } from "@/api/cv";
+import {
+  GenerationTimeoutError,
+  MAX_PENDING_MS,
+  failureReason,
+  useCvGeneration,
+} from "@/api/cv";
 import { ApiError } from "@/api/fetcher";
 import type { CvSelection } from "@/lib/cv-search";
 
@@ -56,6 +61,10 @@ const settled = async (result: { current: ReturnType<typeof useCvGeneration> }) 
 describe("failureReason", () => {
   it("is rate-limited for a 429", () => {
     expect(failureReason(new ApiError(429, "Too Many Requests"))).toBe("rate-limited");
+  });
+
+  it("is timed-out when the task stayed pending too long", () => {
+    expect(failureReason(new GenerationTimeoutError())).toBe("timed-out");
   });
 
   it("is invalid-selection for a 422", () => {
@@ -210,6 +219,70 @@ describe("useCvGeneration", () => {
       await waitFor(() =>
         expect(result.current.generation).toEqual({ status: "done", digest: "digest-1" }),
       );
+    });
+  });
+
+  describe("pending limit", () => {
+    // Only Date is faked: polling runs on real timers, while the clock can jump past the limit.
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ["Date"] });
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    const pastTheLimit = () => vi.setSystemTime(Date.now() + MAX_PENDING_MS + 1);
+
+    it("keeps polling a pending task within the limit", async () => {
+      stubApi({
+        status: (call) => (call < 3 ? json({ state: "pending" }) : json({ state: "done", digest: "digest-1" })),
+      });
+      const { result } = renderGeneration();
+
+      await waitFor(
+        () => expect(result.current.generation).toEqual({ status: "done", digest: "digest-1" }),
+        { timeout: 4000 },
+      );
+    });
+
+    it("times out a task still pending past the limit, and stops polling", async () => {
+      const api = stubApi({ status: () => json({ state: "pending" }) });
+      const { result } = renderGeneration();
+      await waitFor(() => expect(api.statusCalls()).toBeGreaterThan(0));
+
+      pastTheLimit();
+
+      await waitFor(
+        () => expect(result.current.generation).toEqual({ status: "failed", reason: "timed-out" }),
+        { timeout: 3000 },
+      );
+      const callsWhenTimedOut = api.statusCalls();
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      expect(api.statusCalls()).toBe(callsWhenTimedOut);
+    });
+
+    it("starts over on retry after timing out", async () => {
+      let stuck = true;
+      const api = stubApi({
+        start: (call) => json({ task_id: `task-${call}` }, 202),
+        status: () => (stuck ? json({ state: "pending" }) : json({ state: "done", digest: "digest-1" })),
+      });
+      const { result } = renderGeneration();
+      await waitFor(() => expect(api.statusCalls()).toBeGreaterThan(0));
+      pastTheLimit();
+      await waitFor(
+        () => expect(result.current.generation).toEqual({ status: "failed", reason: "timed-out" }),
+        { timeout: 3000 },
+      );
+
+      stuck = false;
+      act(() => result.current.retry());
+
+      await waitFor(() =>
+        expect(result.current.generation).toEqual({ status: "done", digest: "digest-1" }),
+      );
+      expect(api.startCalls()).toBe(2);
     });
   });
 });

@@ -12,15 +12,34 @@ import {
 
 const MAX_STATUS_RETRIES = 2;
 
+/**
+ * How long a task may stay pending, from when its task id arrived, before the generation counts
+ * as timed out. Matches the api's 120 s in-flight window for identical requests.
+ */
+export const MAX_PENDING_MS = 2 * 60 * 1000;
+
+/** The task was still pending after `MAX_PENDING_MS`. */
+export class GenerationTimeoutError extends Error {
+  constructor() {
+    super(`CV generation still pending after ${MAX_PENDING_MS} ms`);
+    this.name = "GenerationTimeoutError";
+  }
+}
+
 export type CvGeneration =
   | { status: "idle" }
   | { status: "processing" }
   | { status: "done"; digest: string }
   | { status: "failed"; reason: CvFailureReason };
 
-export type CvFailureReason = "rate-limited" | "invalid-selection" | "error";
+export type CvFailureReason =
+  | "rate-limited"
+  | "invalid-selection"
+  | "timed-out"
+  | "error";
 
 export const failureReason = (error: unknown): CvFailureReason => {
+  if (error instanceof GenerationTimeoutError) return "timed-out";
   if (!(error instanceof ApiError)) return "error";
   if (error.status === 429) return "rate-limited";
   if (error.status === 422) return "invalid-selection";
@@ -53,19 +72,32 @@ export const useCvGenerateTask = (selection: CvSelection) => {
   });
 };
 
-export const useCvGenerationStatus = (taskId: string | undefined) => {
+/** Polls the task's status; `startedAt` is when its task id arrived (for the pending limit). */
+export const useCvGenerationStatus = (
+  taskId: string | undefined,
+  startedAt: number,
+) => {
   return useQuery({
     queryKey: generationStatusKey(taskId),
     queryFn: taskId
       ? async () => {
           const res = await cvGenerateStatus(taskId);
+          if (
+            res.data.state === "pending" &&
+            Date.now() - startedAt > MAX_PENDING_MS
+          )
+            throw new GenerationTimeoutError();
           return res.data;
         }
       : skipToken,
+    // A failed query keeps its last (pending) data, so polling also stops on an error.
     refetchInterval: (query) =>
-      query.state.data?.state === "pending" ? 1000 : false,
+      query.state.status !== "error" && query.state.data?.state === "pending"
+        ? 1000
+        : false,
     staleTime: Infinity,
     retry: (failureCount: number, error: Error) => {
+      if (error instanceof GenerationTimeoutError) return false;
       const requestError =
         error instanceof ApiError && error.status > 399 && error.status < 500;
       return !requestError && failureCount < MAX_STATUS_RETRIES;
@@ -78,7 +110,10 @@ export const useCvGeneration = (
 ): { generation: CvGeneration; retry: () => void } => {
   const queryClient = useQueryClient();
   const startQuery = useCvGenerateTask(selection);
-  const statusQuery = useCvGenerationStatus(startQuery.data);
+  const statusQuery = useCvGenerationStatus(
+    startQuery.data,
+    startQuery.dataUpdatedAt,
+  );
 
   const retry = () => {
     void queryClient.resetQueries({

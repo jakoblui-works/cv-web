@@ -91,6 +91,16 @@ export const FailedRateLimited: Story = {
   },
 };
 
+export const FailedTimedOut: Story = {
+  args: { generation: { status: "failed", reason: "timed-out" } },
+  play: async ({ args, canvas, userEvent }) => {
+    await expect(canvas.getByRole("alert")).toHaveTextContent(/taking too long/i);
+
+    await userEvent.click(canvas.getByRole("button", { name: "Try again" }));
+    await expect(args.onRetry).toHaveBeenCalledOnce();
+  },
+};
+
 export const FailedInvalidSelection: Story = {
   args: { generation: { status: "failed", reason: "invalid-selection" } },
   play: async ({ args, canvas, userEvent }) => {

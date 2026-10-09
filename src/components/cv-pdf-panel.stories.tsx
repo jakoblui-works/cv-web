@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect } from "storybook/test";
+import { expect, waitFor } from "storybook/test";
 
 import { getCvGetPdfUrl } from "@/api/generated/cv/cv";
 
@@ -47,7 +47,8 @@ export const Done: Story = {
     await expect(download).toHaveAttribute("download", args.fileName);
 
     const frame = canvas.getByTitle("Generated CV");
-    await expect(frame).toBeVisible();
+    // The frame fades in once the viewer has loaded.
+    await waitFor(() => expect(frame).toBeVisible());
     const [frameUrl, viewerParams] = (frame.getAttribute("src") ?? "").split(
       "#",
     );

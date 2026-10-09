@@ -1,4 +1,5 @@
 import { DownloadIcon, ExternalLinkIcon } from "lucide-react";
+import { useState, type ComponentProps } from "react";
 
 import type { CvGeneration } from "@/api/cv";
 import { getCvGetPdfUrl } from "@/api/generated/cv/cv";
@@ -29,6 +30,42 @@ const pageClassName = "min-h-0 w-full flex-1 rounded-md border";
 const cardClassName =
   "flex flex-col items-center gap-4 rounded-md border p-6 text-center";
 
+const ProcessingStatus = () => (
+  <div className="flex flex-col items-center gap-3 text-muted-foreground">
+    <Spinner className="size-6" />
+    <p aria-live="polite">Generating CV…</p>
+  </div>
+);
+
+/** The processing look of the inline page: a skeleton with the status on top. */
+const PagePlaceholder = (props: ComponentProps<"div">) => (
+  <div className="absolute inset-0" {...props}>
+    <Skeleton className="absolute inset-0 rounded-none" />
+    <div className="absolute inset-0 flex items-center justify-center">
+      <ProcessingStatus />
+    </div>
+  </div>
+);
+
+/**
+ * The inline PDF, kept invisible over the processing placeholder until the viewer has loaded,
+ * so the viewer building itself (blank frame, toolbar, then the page) never shows.
+ */
+const CvPdfFrame = ({ src }: { src: string }) => {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className={`${pageClassName} relative overflow-hidden`}>
+      <PagePlaceholder aria-hidden />
+      <iframe
+        src={src}
+        title="Generated CV"
+        onLoad={() => setLoaded(true)}
+        className={`absolute inset-0 size-full bg-muted motion-safe:transition-opacity motion-safe:duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
+      />
+    </div>
+  );
+};
+
 /** The generated CV: a processing state, then Open and Download links and, if `inline`, the PDF. */
 export const CvPdfPanel = ({
   generation,
@@ -38,23 +75,16 @@ export const CvPdfPanel = ({
   if (generation.status === "idle") return null;
 
   if (generation.status === "processing") {
-    const status = (
-      <div className="flex flex-col items-center gap-3 text-muted-foreground">
-        <Spinner className="size-6" />
-        <p aria-live="polite">Generating CV…</p>
-      </div>
-    );
     return inline ? (
       <div className="flex h-full flex-col">
         <div className={`${pageClassName} relative overflow-hidden`}>
-          <Skeleton className="absolute inset-0 rounded-none" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            {status}
-          </div>
+          <PagePlaceholder />
         </div>
       </div>
     ) : (
-      <div className={cardClassName}>{status}</div>
+      <div className={cardClassName}>
+        <ProcessingStatus />
+      </div>
     );
   }
 
@@ -114,11 +144,8 @@ export const CvPdfPanel = ({
   return (
     <div className="flex h-full flex-col gap-4">
       {links}
-      <iframe
-        src={`${pdfUrl}${VIEWER_PARAMS}`}
-        title="Generated CV"
-        className={`${pageClassName} bg-muted`}
-      />
+      {/* Keyed by the PDF, so a new CV starts hidden again until it has loaded. */}
+      <CvPdfFrame key={pdfUrl} src={`${pdfUrl}${VIEWER_PARAMS}`} />
     </div>
   );
 };

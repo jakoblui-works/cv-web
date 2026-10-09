@@ -64,8 +64,7 @@ const HomeComponent = () => {
   const shareUrl =
     window.location.origin + useLocation({ select: (l) => l.href });
 
-  const options =
-    optionsQuery.data?.status === 200 ? optionsQuery.data.data : undefined;
+  const options = optionsQuery.data?.data;
 
   const editor = (
     <div className="flex flex-col gap-6 [view-transition-name:cv-editor]">

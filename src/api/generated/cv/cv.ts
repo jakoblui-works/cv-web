@@ -32,17 +32,15 @@ import {
 } from '../model';
 import type {
   ErrorResponse,
-  FormOptionsResponseOutput,
   GenerateRequest,
-  GenerateStartedResponseOutput,
-  GenerateStatusResponseOutput,
   HTTPValidationError,
-  PingRequest,
-  PingStartedResponseOutput,
-  PingStatusResponseOutput
+  PingRequest
 } from '../model';
 
+import { customFetch } from '../../fetcher';
 
+
+type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
 
 
@@ -62,7 +60,7 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
 };
 
 export type cvPingResponse202 = {
-  data: PingStartedResponseOutput
+  data: PingStartedResponse
   status: 202
 }
 
@@ -78,8 +76,6 @@ export type cvPingResponseError = (cvPingResponse422) & {
   headers: Headers;
 };
 
-export type cvPingResponse = (cvPingResponseSuccess | cvPingResponseError)
-
 export const getCvPingUrl = () => {
 
 
@@ -91,7 +87,7 @@ export const getCvPingUrl = () => {
 /**
  * @summary Cv Ping
  */
-export const cvPing = async (pingRequest: PingRequest, options?: RequestInit): Promise<cvPingResponse> => {
+export const cvPing = async (pingRequest: PingRequest, options?: Parameters<typeof customFetch>[1]): Promise<cvPingResponseSuccess> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -107,22 +103,15 @@ export const cvPing = async (pingRequest: PingRequest, options?: RequestInit): P
     }
     return headers;
   };
-const res = await fetch(getCvPingUrl(),
+return customFetch<cvPingResponseSuccess>(getCvPingUrl(),
   {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(pingRequest)
+    body: JSON.stringify(pingRequest),
+    schema: PingStartedResponse
   }
-)
-
-  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const parsedBody = body ? (contentType.includes('json') ? JSON.parse(body) : body) : {}
-  const data = contentType.includes('json') ? PingStartedResponse.parse(parsedBody) : parsedBody
-  return { data, status: res.status, headers: res.headers } as cvPingResponse
-}
+);}
 
 
 
@@ -131,15 +120,15 @@ const res = await fetch(getCvPingUrl(),
 export const getCvPingMutationKey = () => ['cvPing'] as const;
 
 export const getCvPingMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvPing>>, TError,CvPingMutationVariables, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvPing>>, TError,CvPingMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof cvPing>>, TError,CvPingMutationVariables, TContext> => {
 
 const mutationKey = getCvPingMutationKey();
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
@@ -147,7 +136,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cvPing>>, CvPingMutationVariables> = (props) => {
           const {data} = props ?? {};
 
-          return  cvPing(data,fetchOptions)
+          return  cvPing(data,requestOptions)
         }
 
 
@@ -166,7 +155,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary Cv Ping
  */
 export const useCvPing = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvPing>>, TError,CvPingMutationVariables, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvPing>>, TError,CvPingMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof cvPing>>,
         TError,
@@ -176,7 +165,7 @@ export const useCvPing = <TError = HTTPValidationError,
       return useMutation(getCvPingMutationOptions(options), queryClient);
     }
     export type cvPingStatusResponse200 = {
-  data: PingStatusResponseOutput
+  data: PingStatusResponse
   status: 200
 }
 
@@ -192,8 +181,6 @@ export type cvPingStatusResponseError = (cvPingStatusResponse422) & {
   headers: Headers;
 };
 
-export type cvPingStatusResponse = (cvPingStatusResponseSuccess | cvPingStatusResponseError)
-
 export const getCvPingStatusUrl = (taskId: string,) => {
 
 
@@ -205,24 +192,17 @@ export const getCvPingStatusUrl = (taskId: string,) => {
 /**
  * @summary Cv Ping Status
  */
-export const cvPingStatus = async (taskId: string, options?: RequestInit): Promise<cvPingStatusResponse> => {
+export const cvPingStatus = async (taskId: string, options?: Parameters<typeof customFetch>[1]): Promise<cvPingStatusResponseSuccess> => {
 
-  const res = await fetch(getCvPingStatusUrl(taskId),
+  return customFetch<cvPingStatusResponseSuccess>(getCvPingStatusUrl(taskId),
   {
     ...options,
     method: 'GET'
 
-
+    ,
+    schema: PingStatusResponse
   }
-)
-
-  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const parsedBody = body ? (contentType.includes('json') ? JSON.parse(body) : body) : {}
-  const data = contentType.includes('json') ? PingStatusResponse.parse(parsedBody) : parsedBody
-  return { data, status: res.status, headers: res.headers } as cvPingStatusResponse
-}
+);}
 
 
 
@@ -235,16 +215,16 @@ export const getCvPingStatusQueryKey = (taskId: string,) => {
     }
 
 
-export const getCvPingStatusQueryOptions = <TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = HTTPValidationError>(taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>>, fetch?: RequestInit}
+export const getCvPingStatusQueryOptions = <TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = HTTPValidationError>(taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCvPingStatusQueryKey(taskId);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof cvPingStatus>>> = ({ signal }) => cvPingStatus(taskId, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof cvPingStatus>>> = ({ signal }) => cvPingStatus(taskId, { signal, ...requestOptions });
 
 
 
@@ -264,7 +244,7 @@ export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>
           TError,
           Awaited<ReturnType<typeof cvPingStatus>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = HTTPValidationError>(
@@ -274,11 +254,11 @@ export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>
           TError,
           Awaited<ReturnType<typeof cvPingStatus>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = HTTPValidationError>(
- taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>>, fetch?: RequestInit}
+ taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -286,7 +266,7 @@ export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>
  */
 
 export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = HTTPValidationError>(
- taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>>, fetch?: RequestInit}
+ taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -319,8 +299,6 @@ export type cvGetPdfResponseError = (cvGetPdfResponse422) & {
   headers: Headers;
 };
 
-export type cvGetPdfResponse = (cvGetPdfResponseSuccess | cvGetPdfResponseError)
-
 export const getCvGetPdfUrl = (digest: string,) => {
 
 
@@ -332,23 +310,16 @@ export const getCvGetPdfUrl = (digest: string,) => {
 /**
  * @summary Cv Get Pdf
  */
-export const cvGetPdf = async (digest: string, options?: RequestInit): Promise<cvGetPdfResponse> => {
+export const cvGetPdf = async (digest: string, options?: Parameters<typeof customFetch>[1]): Promise<cvGetPdfResponseSuccess> => {
 
-  const res = await fetch(getCvGetPdfUrl(digest),
+  return customFetch<cvGetPdfResponseSuccess>(getCvGetPdfUrl(digest),
   {
     ...options,
     method: 'GET'
 
 
   }
-)
-
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: cvGetPdfResponse['data'] = body ? JSON.parse(body) : {}
-  return { data, status: res.status, headers: res.headers } as cvGetPdfResponse
-}
+);}
 
 
 
@@ -361,16 +332,16 @@ export const getCvGetPdfQueryKey = (digest: string,) => {
     }
 
 
-export const getCvGetPdfQueryOptions = <TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = HTTPValidationError>(digest: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>>, fetch?: RequestInit}
+export const getCvGetPdfQueryOptions = <TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = HTTPValidationError>(digest: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCvGetPdfQueryKey(digest);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof cvGetPdf>>> = ({ signal }) => cvGetPdf(digest, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof cvGetPdf>>> = ({ signal }) => cvGetPdf(digest, { signal, ...requestOptions });
 
 
 
@@ -390,7 +361,7 @@ export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError
           TError,
           Awaited<ReturnType<typeof cvGetPdf>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = HTTPValidationError>(
@@ -400,11 +371,11 @@ export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError
           TError,
           Awaited<ReturnType<typeof cvGetPdf>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = HTTPValidationError>(
- digest: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>>, fetch?: RequestInit}
+ digest: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -412,7 +383,7 @@ export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError
  */
 
 export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = HTTPValidationError>(
- digest: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>>, fetch?: RequestInit}
+ digest: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -429,7 +400,7 @@ export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError
 
 
 export type cvGetOptionsResponse200 = {
-  data: FormOptionsResponseOutput
+  data: FormOptionsResponse
   status: 200
 }
 
@@ -445,8 +416,6 @@ export type cvGetOptionsResponseError = (cvGetOptionsResponse503) & {
   headers: Headers;
 };
 
-export type cvGetOptionsResponse = (cvGetOptionsResponseSuccess | cvGetOptionsResponseError)
-
 export const getCvGetOptionsUrl = () => {
 
 
@@ -458,24 +427,17 @@ export const getCvGetOptionsUrl = () => {
 /**
  * @summary Cv Get Options
  */
-export const cvGetOptions = async ( options?: RequestInit): Promise<cvGetOptionsResponse> => {
+export const cvGetOptions = async ( options?: Parameters<typeof customFetch>[1]): Promise<cvGetOptionsResponseSuccess> => {
 
-  const res = await fetch(getCvGetOptionsUrl(),
+  return customFetch<cvGetOptionsResponseSuccess>(getCvGetOptionsUrl(),
   {
     ...options,
     method: 'GET'
 
-
+    ,
+    schema: FormOptionsResponse
   }
-)
-
-  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const parsedBody = body ? (contentType.includes('json') ? JSON.parse(body) : body) : {}
-  const data = contentType.includes('json') ? FormOptionsResponse.parse(parsedBody) : parsedBody
-  return { data, status: res.status, headers: res.headers } as cvGetOptionsResponse
-}
+);}
 
 
 
@@ -488,16 +450,16 @@ export const getCvGetOptionsQueryKey = () => {
     }
 
 
-export const getCvGetOptionsQueryOptions = <TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>>, fetch?: RequestInit}
+export const getCvGetOptionsQueryOptions = <TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCvGetOptionsQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof cvGetOptions>>> = ({ signal }) => cvGetOptions({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof cvGetOptions>>> = ({ signal }) => cvGetOptions({ signal, ...requestOptions });
 
 
 
@@ -517,7 +479,7 @@ export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>
           TError,
           Awaited<ReturnType<typeof cvGetOptions>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorResponse>(
@@ -527,11 +489,11 @@ export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>
           TError,
           Awaited<ReturnType<typeof cvGetOptions>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -539,7 +501,7 @@ export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>
  */
 
 export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>>, fetch?: RequestInit}
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
@@ -556,7 +518,7 @@ export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>
 
 
 export type cvGenerateResponse202 = {
-  data: GenerateStartedResponseOutput
+  data: GenerateStartedResponse
   status: 202
 }
 
@@ -572,8 +534,6 @@ export type cvGenerateResponseError = (cvGenerateResponse422) & {
   headers: Headers;
 };
 
-export type cvGenerateResponse = (cvGenerateResponseSuccess | cvGenerateResponseError)
-
 export const getCvGenerateUrl = () => {
 
 
@@ -585,7 +545,7 @@ export const getCvGenerateUrl = () => {
 /**
  * @summary Cv Generate
  */
-export const cvGenerate = async (generateRequest: GenerateRequest, options?: RequestInit): Promise<cvGenerateResponse> => {
+export const cvGenerate = async (generateRequest: GenerateRequest, options?: Parameters<typeof customFetch>[1]): Promise<cvGenerateResponseSuccess> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -601,22 +561,15 @@ export const cvGenerate = async (generateRequest: GenerateRequest, options?: Req
     }
     return headers;
   };
-const res = await fetch(getCvGenerateUrl(),
+return customFetch<cvGenerateResponseSuccess>(getCvGenerateUrl(),
   {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(generateRequest)
+    body: JSON.stringify(generateRequest),
+    schema: GenerateStartedResponse
   }
-)
-
-  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const parsedBody = body ? (contentType.includes('json') ? JSON.parse(body) : body) : {}
-  const data = contentType.includes('json') ? GenerateStartedResponse.parse(parsedBody) : parsedBody
-  return { data, status: res.status, headers: res.headers } as cvGenerateResponse
-}
+);}
 
 
 
@@ -625,15 +578,15 @@ const res = await fetch(getCvGenerateUrl(),
 export const getCvGenerateMutationKey = () => ['cvGenerate'] as const;
 
 export const getCvGenerateMutationOptions = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvGenerate>>, TError,CvGenerateMutationVariables, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvGenerate>>, TError,CvGenerateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof cvGenerate>>, TError,CvGenerateMutationVariables, TContext> => {
 
 const mutationKey = getCvGenerateMutationKey();
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
       : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
+      : {mutation: { mutationKey, }, request: undefined};
 
 
 
@@ -641,7 +594,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       const mutationFn: MutationFunction<Awaited<ReturnType<typeof cvGenerate>>, CvGenerateMutationVariables> = (props) => {
           const {data} = props ?? {};
 
-          return  cvGenerate(data,fetchOptions)
+          return  cvGenerate(data,requestOptions)
         }
 
 
@@ -660,7 +613,7 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
  * @summary Cv Generate
  */
 export const useCvGenerate = <TError = HTTPValidationError,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvGenerate>>, TError,CvGenerateMutationVariables, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvGenerate>>, TError,CvGenerateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof cvGenerate>>,
         TError,
@@ -670,7 +623,7 @@ export const useCvGenerate = <TError = HTTPValidationError,
       return useMutation(getCvGenerateMutationOptions(options), queryClient);
     }
     export type cvGenerateStatusResponse200 = {
-  data: GenerateStatusResponseOutput
+  data: GenerateStatusResponse
   status: 200
 }
 
@@ -686,8 +639,6 @@ export type cvGenerateStatusResponseError = (cvGenerateStatusResponse422) & {
   headers: Headers;
 };
 
-export type cvGenerateStatusResponse = (cvGenerateStatusResponseSuccess | cvGenerateStatusResponseError)
-
 export const getCvGenerateStatusUrl = (taskId: string,) => {
 
 
@@ -699,24 +650,17 @@ export const getCvGenerateStatusUrl = (taskId: string,) => {
 /**
  * @summary Cv Generate Status
  */
-export const cvGenerateStatus = async (taskId: string, options?: RequestInit): Promise<cvGenerateStatusResponse> => {
+export const cvGenerateStatus = async (taskId: string, options?: Parameters<typeof customFetch>[1]): Promise<cvGenerateStatusResponseSuccess> => {
 
-  const res = await fetch(getCvGenerateStatusUrl(taskId),
+  return customFetch<cvGenerateStatusResponseSuccess>(getCvGenerateStatusUrl(taskId),
   {
     ...options,
     method: 'GET'
 
-
+    ,
+    schema: GenerateStatusResponse
   }
-)
-
-  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const parsedBody = body ? (contentType.includes('json') ? JSON.parse(body) : body) : {}
-  const data = contentType.includes('json') ? GenerateStatusResponse.parse(parsedBody) : parsedBody
-  return { data, status: res.status, headers: res.headers } as cvGenerateStatusResponse
-}
+);}
 
 
 
@@ -729,16 +673,16 @@ export const getCvGenerateStatusQueryKey = (taskId: string,) => {
     }
 
 
-export const getCvGenerateStatusQueryOptions = <TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = HTTPValidationError>(taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>>, fetch?: RequestInit}
+export const getCvGenerateStatusQueryOptions = <TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = HTTPValidationError>(taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+const {query: queryOptions, request: requestOptions} = options ?? {};
 
   const queryKey =  queryOptions?.queryKey ?? getCvGenerateStatusQueryKey(taskId);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof cvGenerateStatus>>> = ({ signal }) => cvGenerateStatus(taskId, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof cvGenerateStatus>>> = ({ signal }) => cvGenerateStatus(taskId, { signal, ...requestOptions });
 
 
 
@@ -758,7 +702,7 @@ export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerate
           TError,
           Awaited<ReturnType<typeof cvGenerateStatus>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = HTTPValidationError>(
@@ -768,11 +712,11 @@ export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerate
           TError,
           Awaited<ReturnType<typeof cvGenerateStatus>>
         > , 'initialData'
-      >, fetch?: RequestInit}
+      >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = HTTPValidationError>(
- taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>>, fetch?: RequestInit}
+ taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -780,7 +724,7 @@ export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerate
  */
 
 export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = HTTPValidationError>(
- taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>>, fetch?: RequestInit}
+ taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 

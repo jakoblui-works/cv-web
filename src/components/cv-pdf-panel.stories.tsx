@@ -67,7 +67,7 @@ export const Done: Story = {
 };
 
 export const Failed: Story = {
-  args: { generation: { status: "failed" } },
+  args: { generation: { status: "failed", reason: "error" } },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole("alert")).toBeVisible();
     await expect(canvas.queryByRole("link")).toBeNull();

@@ -38,6 +38,7 @@ import type {
 } from '../model';
 
 import { customFetch } from '../../fetcher';
+import type { ErrorType } from '../../fetcher';
 
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
@@ -119,7 +120,7 @@ return customFetch<cvPingResponseSuccess>(getCvPingUrl(),
 
 export const getCvPingMutationKey = () => ['cvPing'] as const;
 
-export const getCvPingMutationOptions = <TError = HTTPValidationError,
+export const getCvPingMutationOptions = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvPing>>, TError,CvPingMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof cvPing>>, TError,CvPingMutationVariables, TContext> => {
 
@@ -148,13 +149,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type CvPingMutationResult = NonNullable<Awaited<ReturnType<typeof cvPing>>>
     export type CvPingMutationBody = PingRequest
-    export type CvPingMutationError = HTTPValidationError
+    export type CvPingMutationError = ErrorType<HTTPValidationError>
     export type CvPingMutationVariables = {data: PingRequest}
 
     /**
  * @summary Cv Ping
  */
-export const useCvPing = <TError = HTTPValidationError,
+export const useCvPing = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvPing>>, TError,CvPingMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof cvPing>>,
@@ -215,7 +216,7 @@ export const getCvPingStatusQueryKey = (taskId: string,) => {
     }
 
 
-export const getCvPingStatusQueryOptions = <TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = HTTPValidationError>(taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getCvPingStatusQueryOptions = <TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = ErrorType<HTTPValidationError>>(taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -234,10 +235,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type CvPingStatusQueryResult = NonNullable<Awaited<ReturnType<typeof cvPingStatus>>>
-export type CvPingStatusQueryError = HTTPValidationError
+export type CvPingStatusQueryError = ErrorType<HTTPValidationError>
 
 
-export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = HTTPValidationError>(
+export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = ErrorType<HTTPValidationError>>(
  taskId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof cvPingStatus>>,
@@ -247,7 +248,7 @@ export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = HTTPValidationError>(
+export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = ErrorType<HTTPValidationError>>(
  taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof cvPingStatus>>,
@@ -257,7 +258,7 @@ export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = HTTPValidationError>(
+export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = ErrorType<HTTPValidationError>>(
  taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -265,7 +266,7 @@ export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>
  * @summary Cv Ping Status
  */
 
-export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = HTTPValidationError>(
+export function useCvPingStatus<TData = Awaited<ReturnType<typeof cvPingStatus>>, TError = ErrorType<HTTPValidationError>>(
  taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvPingStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -332,7 +333,7 @@ export const getCvGetPdfQueryKey = (digest: string,) => {
     }
 
 
-export const getCvGetPdfQueryOptions = <TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = HTTPValidationError>(digest: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getCvGetPdfQueryOptions = <TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = ErrorType<HTTPValidationError>>(digest: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -351,10 +352,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type CvGetPdfQueryResult = NonNullable<Awaited<ReturnType<typeof cvGetPdf>>>
-export type CvGetPdfQueryError = HTTPValidationError
+export type CvGetPdfQueryError = ErrorType<HTTPValidationError>
 
 
-export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = HTTPValidationError>(
+export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = ErrorType<HTTPValidationError>>(
  digest: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof cvGetPdf>>,
@@ -364,7 +365,7 @@ export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = HTTPValidationError>(
+export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = ErrorType<HTTPValidationError>>(
  digest: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof cvGetPdf>>,
@@ -374,7 +375,7 @@ export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = HTTPValidationError>(
+export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = ErrorType<HTTPValidationError>>(
  digest: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -382,7 +383,7 @@ export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError
  * @summary Cv Get Pdf
  */
 
-export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = HTTPValidationError>(
+export function useCvGetPdf<TData = Awaited<ReturnType<typeof cvGetPdf>>, TError = ErrorType<HTTPValidationError>>(
  digest: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetPdf>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -450,7 +451,7 @@ export const getCvGetOptionsQueryKey = () => {
     }
 
 
-export const getCvGetOptionsQueryOptions = <TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getCvGetOptionsQueryOptions = <TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorType<ErrorResponse>>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -469,10 +470,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type CvGetOptionsQueryResult = NonNullable<Awaited<ReturnType<typeof cvGetOptions>>>
-export type CvGetOptionsQueryError = ErrorResponse
+export type CvGetOptionsQueryError = ErrorType<ErrorResponse>
 
 
-export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorResponse>(
+export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorType<ErrorResponse>>(
   options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof cvGetOptions>>,
@@ -482,7 +483,7 @@ export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorResponse>(
+export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorType<ErrorResponse>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof cvGetOptions>>,
@@ -492,7 +493,7 @@ export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorResponse>(
+export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorType<ErrorResponse>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -500,7 +501,7 @@ export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>
  * @summary Cv Get Options
  */
 
-export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorResponse>(
+export function useCvGetOptions<TData = Awaited<ReturnType<typeof cvGetOptions>>, TError = ErrorType<ErrorResponse>>(
   options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGetOptions>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -577,7 +578,7 @@ return customFetch<cvGenerateResponseSuccess>(getCvGenerateUrl(),
 
 export const getCvGenerateMutationKey = () => ['cvGenerate'] as const;
 
-export const getCvGenerateMutationOptions = <TError = HTTPValidationError,
+export const getCvGenerateMutationOptions = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvGenerate>>, TError,CvGenerateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof cvGenerate>>, TError,CvGenerateMutationVariables, TContext> => {
 
@@ -606,13 +607,13 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type CvGenerateMutationResult = NonNullable<Awaited<ReturnType<typeof cvGenerate>>>
     export type CvGenerateMutationBody = GenerateRequest
-    export type CvGenerateMutationError = HTTPValidationError
+    export type CvGenerateMutationError = ErrorType<HTTPValidationError>
     export type CvGenerateMutationVariables = {data: GenerateRequest}
 
     /**
  * @summary Cv Generate
  */
-export const useCvGenerate = <TError = HTTPValidationError,
+export const useCvGenerate = <TError = ErrorType<HTTPValidationError>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof cvGenerate>>, TError,CvGenerateMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof cvGenerate>>,
@@ -673,7 +674,7 @@ export const getCvGenerateStatusQueryKey = (taskId: string,) => {
     }
 
 
-export const getCvGenerateStatusQueryOptions = <TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = HTTPValidationError>(taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
+export const getCvGenerateStatusQueryOptions = <TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = ErrorType<HTTPValidationError>>(taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
@@ -692,10 +693,10 @@ const {query: queryOptions, request: requestOptions} = options ?? {};
 }
 
 export type CvGenerateStatusQueryResult = NonNullable<Awaited<ReturnType<typeof cvGenerateStatus>>>
-export type CvGenerateStatusQueryError = HTTPValidationError
+export type CvGenerateStatusQueryError = ErrorType<HTTPValidationError>
 
 
-export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = HTTPValidationError>(
+export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = ErrorType<HTTPValidationError>>(
  taskId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof cvGenerateStatus>>,
@@ -705,7 +706,7 @@ export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerate
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = HTTPValidationError>(
+export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = ErrorType<HTTPValidationError>>(
  taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof cvGenerateStatus>>,
@@ -715,7 +716,7 @@ export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerate
       >, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = HTTPValidationError>(
+export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = ErrorType<HTTPValidationError>>(
  taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -723,7 +724,7 @@ export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerate
  * @summary Cv Generate Status
  */
 
-export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = HTTPValidationError>(
+export function useCvGenerateStatus<TData = Awaited<ReturnType<typeof cvGenerateStatus>>, TError = ErrorType<HTTPValidationError>>(
  taskId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof cvGenerateStatus>>, TError, TData>>, request?: SecondParameter<typeof customFetch>}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {

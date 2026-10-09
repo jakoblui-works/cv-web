@@ -26,3 +26,13 @@ export const customFetch = async <T>(
   const data = schema ? schema.parse(body) : body;
   return { data, status: res.status, headers: res.headers } as T;
 };
+
+/**
+ * The error type Orval gives the generated hooks (it picks up this export from the mutator file).
+ * `customFetch` throws an `ApiError` for any non-2xx, whatever error body the spec declares, and
+ * network failures or invalid success bodies throw other errors, so this is honestly just `Error`:
+ * narrow with `instanceof ApiError`.
+ */
+// The parameter is required: Orval writes ErrorType<…>.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type ErrorType<_SpecErrorBody> = Error;

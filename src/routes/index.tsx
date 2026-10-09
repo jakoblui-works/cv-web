@@ -60,6 +60,8 @@ const HomeComponent = () => {
 
   const generation = useCvGeneration(committed);
   const largeScreen = useMediaQuery(LARGE_SCREEN_QUERY);
+  // Browsers set to download PDFs never fire the iframe's load, so the inline PDF would never show.
+  const inlinePdf = largeScreen && navigator.pdfViewerEnabled;
 
   const options =
     optionsQuery.data?.status === 200 ? optionsQuery.data.data : undefined;
@@ -103,7 +105,7 @@ const HomeComponent = () => {
         <CvPdfPanel
           generation={generation}
           fileName={`Jakob-Lui-CV-${committed.titleId}.pdf`}
-          inline={largeScreen}
+          inline={inlinePdf}
         />
       </div>
     </main>

@@ -12,8 +12,8 @@ type CvPdfPanelProps = {
   /** File name the Download link saves the PDF as. */
   fileName: string;
   /**
-   * Show the PDF in the page. Phone browsers don't show inline PDFs reliably,
-   * so without it the panel is a compact card with only the links.
+   * Show the PDF in the page. Phone browsers don't show inline PDFs reliably, and some browsers
+   * download PDFs instead, so without it the panel is a compact card with only the links.
    */
   inline: boolean;
 };

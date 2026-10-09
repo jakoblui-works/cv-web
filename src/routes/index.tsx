@@ -29,11 +29,13 @@ const CvEditor = ({ options, committed }: CvEditorProps) => {
   const canGenerate =
     isValidSelection(draft) && !sameSelection(draft, committed);
 
+  const leavingEditingPage = !isValidSelection(committed);
+
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!canGenerate) return;
     // The router resets scroll to the top, which brings the result card (first on phones) into view.
-    navigate({ search: toCvSearch(draft) });
+    navigate({ search: toCvSearch(draft), viewTransition: leavingEditingPage });
   };
 
   return (
@@ -43,7 +45,7 @@ const CvEditor = ({ options, committed }: CvEditorProps) => {
         type="submit"
         size="lg"
         disabled={!canGenerate}
-        className="mt-4 min-w-40 self-center px-6 text-base"
+        className="mt-4 min-w-40 self-center px-6 text-base [view-transition-name:cv-generate]"
       >
         Generate
       </Button>
@@ -63,7 +65,7 @@ const HomeComponent = () => {
     optionsQuery.data?.status === 200 ? optionsQuery.data.data : undefined;
 
   const editor = (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 [view-transition-name:cv-editor]">
       <h1 className="text-2xl font-semibold">Tailored CV</h1>
       {optionsQuery.isPending && (
         <p className="text-muted-foreground">Loading options…</p>
@@ -97,7 +99,7 @@ const HomeComponent = () => {
     <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-8 lg:h-[calc(100dvh-var(--spacing-header))] lg:grid-cols-[minmax(0,22rem)_auto_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
       <div className="lg:-m-1 lg:overflow-y-auto lg:p-1 lg:pt-16">{editor}</div>
       <Separator orientation="vertical" className="hidden lg:block" />
-      <div className="order-first lg:order-none">
+      <div className="order-first lg:order-0 [view-transition-name:cv-result]">
         <CvPdfPanel
           generation={generation}
           fileName={`Jakob-Lui-CV-${committed.titleId}.pdf`}

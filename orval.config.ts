@@ -16,7 +16,11 @@ export default defineConfig({
       baseUrl: "/api",
       clean: true,
       override: {
-        fetch: { runtimeValidation: true },
+        // customFetch throws ApiError on any non-2xx (JSON or not) and validates success bodies
+        // with the schema Orval passes in, so the generated types only describe success.
+        mutator: { path: "src/api/fetcher.ts", name: "customFetch" },
+        includeZodSchemaInArguments: true,
+        fetch: { runtimeValidation: true, forceSuccessResponse: true },
       },
     },
   },

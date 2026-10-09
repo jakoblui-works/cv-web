@@ -1,11 +1,14 @@
 import { createFileRoute, useLocation } from "@tanstack/react-router";
+import { SparklesIcon } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import { useCvGeneration } from "@/api/cv";
+import { ApiError } from "@/api/fetcher";
 import { useCvGetOptions } from "@/api/generated/cv/cv";
 import type { FormOptionsResponseOutput } from "@/api/generated/model";
 import { CvForm } from "@/components/cv-form";
 import { CvPdfPanel } from "@/components/cv-pdf-panel";
+import { OptionsLoadError } from "@/components/options-load-error";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { LARGE_SCREEN_QUERY, useMediaQuery } from "@/hooks/use-media-query";
@@ -21,9 +24,11 @@ import {
 type CvEditorProps = {
   options: FormOptionsResponseOutput;
   committed: CvSelection;
+  /** The generation for `committed` failed (the result panel says why and offers a retry). */
+  failed: boolean;
 };
 
-const CvEditor = ({ options, committed }: CvEditorProps) => {
+const CvEditor = ({ options, committed, failed }: CvEditorProps) => {
   const navigate = Route.useNavigate();
   const [draft, setDraft] = useState<CvSelection>(committed);
   const canGenerate =
@@ -47,25 +52,39 @@ const CvEditor = ({ options, committed }: CvEditorProps) => {
         disabled={!canGenerate}
         className="mt-4 min-w-40 self-center px-6 text-base [view-transition-name:cv-generate]"
       >
+        <SparklesIcon aria-hidden />
         Generate
       </Button>
+      {failed && sameSelection(draft, committed) && (
+        <p className="-mt-2 text-center text-sm text-destructive">
+          Couldn&rsquo;t generate the CV.
+        </p>
+      )}
     </form>
   );
 };
 
 const HomeComponent = () => {
-  const optionsQuery = useCvGetOptions();
+  const navigate = Route.useNavigate();
+  const optionsQuery = useCvGetOptions({
+    query: {
+      // A 503 means the options aren't published yet, and a 4xx won't change on a retry,
+      // so only network and other server errors are retried.
+      retry: (failureCount, error) =>
+        !(error instanceof ApiError && (error.status < 500 || error.status === 503)) &&
+        failureCount < 2,
+    },
+  });
   const search = Route.useSearch();
   const committed = fromCvSearch(search);
 
-  const generation = useCvGeneration(committed);
+  const { generation, retry } = useCvGeneration(committed);
   const largeScreen = useMediaQuery(LARGE_SCREEN_QUERY);
   const inlinePdf = largeScreen && navigator.pdfViewerEnabled;
   const shareUrl =
     window.location.origin + useLocation({ select: (l) => l.href });
 
-  const options =
-    optionsQuery.data?.status === 200 ? optionsQuery.data.data : undefined;
+  const options = optionsQuery.data?.data;
 
   const editor = (
     <div className="flex flex-col gap-6 [view-transition-name:cv-editor]">
@@ -74,13 +93,14 @@ const HomeComponent = () => {
         <p className="text-muted-foreground">Loading options…</p>
       )}
       {!optionsQuery.isPending && options === undefined && (
-        <p className="text-destructive">Couldn&rsquo;t load the CV options.</p>
+        <OptionsLoadError error={optionsQuery.error} />
       )}
       {options !== undefined && (
         <CvEditor
           key={JSON.stringify(toCvSearch(committed))}
           options={options}
           committed={committed}
+          failed={generation.status === "failed"}
         />
       )}
     </div>
@@ -104,6 +124,9 @@ const HomeComponent = () => {
           shareUrl={shareUrl}
           fileName={`Jakob-Lui-CV-${committed.titleId}.pdf`}
           inline={inlinePdf}
+          onRetry={retry}
+          // Back to the editing layout with an empty form.
+          onClear={() => navigate({ search: {} })}
         />
       </div>
     </main>

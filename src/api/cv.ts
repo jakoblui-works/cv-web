@@ -1,7 +1,8 @@
-import { skipToken, useQuery } from "@tanstack/react-query";
+import { skipToken, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { ApiError } from "@/api/fetcher";
 import { cvGenerate, cvGenerateStatus } from "@/api/generated/cv/cv";
+import type { GenerateStatusResponseOutput } from "@/api/generated/model";
 import {
   canonicalSelection,
   isValidSelection,
@@ -26,11 +27,17 @@ export const failureReason = (error: unknown): CvFailureReason => {
   return "error";
 };
 
+const generateTaskKey = (selection: CvSelection) =>
+  ["cvGenerate", toCvSearch(canonicalSelection(selection))] as const;
+
+const generationStatusKey = (taskId: string | undefined) =>
+  ["cvGenerateStatus", taskId] as const;
+
 export const useCvGenerateTask = (selection: CvSelection) => {
   const canonical = canonicalSelection(selection);
 
   return useQuery({
-    queryKey: ["cvGenerate", toCvSearch(canonical)],
+    queryKey: generateTaskKey(canonical),
     queryFn: isValidSelection(canonical)
       ? async () => {
           const res = await cvGenerate({
@@ -48,7 +55,7 @@ export const useCvGenerateTask = (selection: CvSelection) => {
 
 export const useCvGenerationStatus = (taskId: string | undefined) => {
   return useQuery({
-    queryKey: ["cvGenerateStatus", taskId],
+    queryKey: generationStatusKey(taskId),
     queryFn: taskId
       ? async () => {
           const res = await cvGenerateStatus(taskId);
@@ -66,10 +73,41 @@ export const useCvGenerationStatus = (taskId: string | undefined) => {
   });
 };
 
-export const useCvGeneration = (selection: CvSelection): CvGeneration => {
-  const { error: startError, data: taskId } = useCvGenerateTask(selection);
-  const { error: generationError, data } = useCvGenerationStatus(taskId);
+export const useCvGeneration = (
+  selection: CvSelection,
+): { generation: CvGeneration; retry: () => void } => {
+  const queryClient = useQueryClient();
+  const startQuery = useCvGenerateTask(selection);
+  const statusQuery = useCvGenerationStatus(startQuery.data);
 
+  const retry = () => {
+    void queryClient.resetQueries({
+      queryKey: generationStatusKey(startQuery.data),
+      exact: true,
+    });
+    void queryClient.resetQueries({
+      queryKey: generateTaskKey(selection),
+      exact: true,
+    });
+  };
+
+  return {
+    generation: toGeneration(
+      selection,
+      startQuery.error,
+      statusQuery.error,
+      statusQuery.data,
+    ),
+    retry,
+  };
+};
+
+const toGeneration = (
+  selection: CvSelection,
+  startError: Error | null,
+  generationError: Error | null,
+  data: GenerateStatusResponseOutput | undefined,
+): CvGeneration => {
   if (!isValidSelection(selection)) return { status: "idle" };
 
   if (startError) {

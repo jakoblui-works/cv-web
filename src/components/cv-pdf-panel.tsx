@@ -1,10 +1,10 @@
-import { DownloadIcon, ExternalLinkIcon } from "lucide-react";
+import { DownloadIcon, ExternalLinkIcon, RotateCwIcon, XIcon } from "lucide-react";
 import { useState, type ComponentProps } from "react";
 
-import type { CvGeneration } from "@/api/cv";
+import type { CvFailureReason, CvGeneration } from "@/api/cv";
 import { getCvGetPdfUrl } from "@/api/generated/cv/cv";
 import { CopyLinkField } from "@/components/copy-link-field";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -13,12 +13,23 @@ type CvPdfPanelProps = {
   shareUrl: string;
   fileName: string;
   inline: boolean;
+  /** Starts the generation over with a fresh task. */
+  onRetry: () => void;
+  /** Clears the selection; offered instead of retrying when the selection itself is invalid. */
+  onClear: () => void;
 };
 
 const VIEWER_PARAMS = "#navpanes=0&pagemode=none&view=Fit";
 const pageClassName = "min-h-0 w-full flex-1 rounded-md border";
 const cardClassName =
   "flex flex-col items-center gap-4 rounded-md border p-6 text-center";
+
+const FAILURE_MESSAGES: Record<CvFailureReason, string> = {
+  error: "Something went wrong while generating the CV.",
+  "rate-limited": "Too many requests. Try again in a minute.",
+  "invalid-selection":
+    "Some selected items are no longer available. Clear the selection to start over.",
+};
 
 const ProcessingStatus = () => (
   <div className="flex flex-col items-center gap-3 text-muted-foreground">
@@ -56,6 +67,8 @@ export const CvPdfPanel = ({
   shareUrl,
   fileName,
   inline,
+  onRetry,
+  onClear,
 }: CvPdfPanelProps) => {
   if (generation.status === "idle") return null;
 
@@ -74,20 +87,37 @@ export const CvPdfPanel = ({
   }
 
   if (generation.status === "failed") {
-    const message = <>Couldn&rsquo;t generate the CV.</>;
+    // Retrying an invalid selection would fail again, so it offers to start over instead.
+    const action =
+      generation.reason === "invalid-selection" ? (
+        <Button variant="outline" onClick={onClear}>
+          <XIcon aria-hidden />
+          Clear selection
+        </Button>
+      ) : (
+        <Button variant="outline" onClick={onRetry}>
+          <RotateCwIcon aria-hidden />
+          Try again
+        </Button>
+      );
+    const content = (
+      <>
+        <p role="alert" className="text-destructive">
+          {FAILURE_MESSAGES[generation.reason]}
+        </p>
+        {action}
+      </>
+    );
     return inline ? (
       <div className="flex h-full flex-col">
         <div
-          role="alert"
-          className={`${pageClassName} flex items-center justify-center p-6 text-center text-destructive`}
+          className={`${pageClassName} flex flex-col items-center justify-center gap-4 p-6 text-center`}
         >
-          {message}
+          {content}
         </div>
       </div>
     ) : (
-      <div role="alert" className={`${cardClassName} text-destructive`}>
-        {message}
-      </div>
+      <div className={cardClassName}>{content}</div>
     );
   }
 

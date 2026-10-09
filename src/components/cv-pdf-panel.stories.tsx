@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { expect, waitFor } from "storybook/test";
+import { expect, fn, waitFor } from "storybook/test";
 
 import { getCvGetPdfUrl } from "@/api/generated/cv/cv";
 
@@ -12,6 +12,8 @@ const meta: Meta<typeof CvPdfPanel> = {
     fileName: "cv.pdf",
     shareUrl: "https://cv.example.com/?title=title-a&skills=skill-a1",
     inline: true,
+    onRetry: fn(),
+    onClear: fn(),
   },
   decorators: [
     // Inline, the panel fills its container's height, like the desktop result layout.
@@ -68,11 +70,37 @@ export const Done: Story = {
 
 export const Failed: Story = {
   args: { generation: { status: "failed", reason: "error" } },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole("alert")).toBeVisible();
+  play: async ({ args, canvas, userEvent }) => {
+    await expect(canvas.getByRole("alert")).toHaveTextContent(/went wrong/i);
     await expect(canvas.queryByRole("link")).toBeNull();
     await expect(canvas.queryByRole("textbox")).toBeNull();
     await expect(canvas.queryByTitle("Generated CV")).toBeNull();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Try again" }));
+    await expect(args.onRetry).toHaveBeenCalledOnce();
+  },
+};
+
+export const FailedRateLimited: Story = {
+  args: { generation: { status: "failed", reason: "rate-limited" } },
+  play: async ({ args, canvas, userEvent }) => {
+    await expect(canvas.getByRole("alert")).toHaveTextContent(/too many requests/i);
+
+    await userEvent.click(canvas.getByRole("button", { name: "Try again" }));
+    await expect(args.onRetry).toHaveBeenCalledOnce();
+  },
+};
+
+export const FailedInvalidSelection: Story = {
+  args: { generation: { status: "failed", reason: "invalid-selection" } },
+  play: async ({ args, canvas, userEvent }) => {
+    await expect(canvas.getByRole("alert")).toHaveTextContent(/no longer available/i);
+    // Retrying the same selection would fail again.
+    await expect(canvas.queryByRole("button", { name: "Try again" })).toBeNull();
+
+    await userEvent.click(canvas.getByRole("button", { name: "Clear selection" }));
+    await expect(args.onClear).toHaveBeenCalledOnce();
+    await expect(args.onRetry).not.toHaveBeenCalled();
   },
 };
 
@@ -109,4 +137,9 @@ export const DoneOnPhone: Story = {
 export const FailedOnPhone: Story = {
   ...Failed,
   args: { ...Failed.args, inline: false },
+};
+
+export const FailedInvalidSelectionOnPhone: Story = {
+  ...FailedInvalidSelection,
+  args: { ...FailedInvalidSelection.args, inline: false },
 };

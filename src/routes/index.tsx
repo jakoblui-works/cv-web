@@ -1,4 +1,5 @@
 import { createFileRoute, useLocation } from "@tanstack/react-router";
+import { SparklesIcon } from "lucide-react";
 import { useState, type FormEvent } from "react";
 
 import { useCvGeneration } from "@/api/cv";
@@ -21,9 +22,11 @@ import {
 type CvEditorProps = {
   options: FormOptionsResponseOutput;
   committed: CvSelection;
+  /** The generation for `committed` failed (the result panel says why and offers a retry). */
+  failed: boolean;
 };
 
-const CvEditor = ({ options, committed }: CvEditorProps) => {
+const CvEditor = ({ options, committed, failed }: CvEditorProps) => {
   const navigate = Route.useNavigate();
   const [draft, setDraft] = useState<CvSelection>(committed);
   const canGenerate =
@@ -47,18 +50,25 @@ const CvEditor = ({ options, committed }: CvEditorProps) => {
         disabled={!canGenerate}
         className="mt-4 min-w-40 self-center px-6 text-base [view-transition-name:cv-generate]"
       >
+        <SparklesIcon aria-hidden />
         Generate
       </Button>
+      {failed && sameSelection(draft, committed) && (
+        <p className="-mt-2 text-center text-sm text-destructive">
+          Couldn&rsquo;t generate the CV.
+        </p>
+      )}
     </form>
   );
 };
 
 const HomeComponent = () => {
+  const navigate = Route.useNavigate();
   const optionsQuery = useCvGetOptions();
   const search = Route.useSearch();
   const committed = fromCvSearch(search);
 
-  const generation = useCvGeneration(committed);
+  const { generation, retry } = useCvGeneration(committed);
   const largeScreen = useMediaQuery(LARGE_SCREEN_QUERY);
   const inlinePdf = largeScreen && navigator.pdfViewerEnabled;
   const shareUrl =
@@ -80,6 +90,7 @@ const HomeComponent = () => {
           key={JSON.stringify(toCvSearch(committed))}
           options={options}
           committed={committed}
+          failed={generation.status === "failed"}
         />
       )}
     </div>
@@ -103,6 +114,9 @@ const HomeComponent = () => {
           shareUrl={shareUrl}
           fileName={`Jakob-Lui-CV-${committed.titleId}.pdf`}
           inline={inlinePdf}
+          onRetry={retry}
+          // Back to the editing layout with an empty form.
+          onClear={() => navigate({ search: {} })}
         />
       </div>
     </main>

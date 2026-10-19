@@ -13,7 +13,8 @@
     "start": "vite",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "generate:api": "orval"
+    "generate:api": "orval",
+    "og": "node scripts/render-og.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

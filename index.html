@@ -4,6 +4,47 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jakob Lui - CV Generator</title>
+    <!-- Shared by all sites; site-web's `pnpm icons` renders them, so copy them from there after a
+         change. The SVG for modern browsers; the ICO for the rest (`sizes="32x32"`, not "any", or
+         Chrome picks the ICO over the SVG). -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- Static on purpose: link previews and crawlers don't run JavaScript, so every URL
+         (including shared `?title=…` links) shares these. -->
+    <meta
+      name="description"
+      content="Pick a role, concepts and skills, and get Jakob Lui's CV tailored to them as a PDF."
+    />
+    <link rel="canonical" href="https://cv.jakoblui.com/" />
+    <!-- The header's background (`--surface`), in hex. Follows the system theme, not the toggle. -->
+    <meta
+      name="theme-color"
+      content="#ffffff"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#0a0a0a"
+      media="(prefers-color-scheme: dark)"
+    />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://cv.jakoblui.com/" />
+    <meta property="og:title" content="Jakob Lui - CV Generator" />
+    <meta
+      property="og:description"
+      content="Pick a role, concepts and skills, and get Jakob Lui's CV tailored to them as a PDF."
+    />
+    <meta property="og:image" content="https://cv.jakoblui.com/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Tailored CV: pick a role and skills, get a PDF. A CV page with the tailored lines highlighted."
+    />
+    <!-- Without it, Discord and X show a small thumbnail instead of the large card. -->
+    <meta name="twitter:card" content="summary_large_image" />
     <script>
       // Runs before the first paint so the page never flashes the wrong theme.
       // The storage key must match THEME_STORAGE_KEY in src/components/theme-toggle.tsx.

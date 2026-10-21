@@ -8,7 +8,7 @@ import { cv, sites } from "@/lib/sites";
 // sites), the rest links to the current site's root.
 export const SiteHeader = () => {
   return (
-    <header className="h-header bg-surface">
+    <header className="h-header bg-surface pt-3">
       <div className="mx-auto flex h-full w-full max-w-6xl items-center justify-between px-4">
         <div className="flex items-center gap-1.75 font-logo text-2xl leading-none font-semibold tracking-[-0.03em]">
           <SiteSwitcher sites={sites} current={cv} />

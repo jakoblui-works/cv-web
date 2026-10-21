@@ -26,9 +26,9 @@ const cardClassName =
   "flex flex-col items-center gap-4 rounded-md border bg-surface p-6 text-center";
 
 const FAILURE_MESSAGES: Record<CvFailureReason, string> = {
-  error: "Something went wrong while generating the CV.",
+  error: "Something went wrong while assembling the CV.",
   "rate-limited": "Too many requests. Try again in a minute.",
-  "timed-out": "Generating the CV is taking too long.",
+  "timed-out": "Assembling the CV is taking too long.",
   "invalid-selection":
     "Some selected items are no longer available. Clear the selection to start over.",
 };
@@ -36,7 +36,7 @@ const FAILURE_MESSAGES: Record<CvFailureReason, string> = {
 const ProcessingStatus = () => (
   <div className="flex flex-col items-center gap-3 text-muted-foreground">
     <Spinner className="size-6" />
-    <p aria-live="polite">Generating CV…</p>
+    <p aria-live="polite">Assembling CV…</p>
   </div>
 );
 
@@ -56,7 +56,7 @@ const CvPdfFrame = ({ src }: { src: string }) => {
       <PagePlaceholder aria-hidden />
       <iframe
         src={src}
-        title="Generated CV"
+        title="Assembled CV"
         onLoad={() => setLoaded(true)}
         className={`absolute inset-0 size-full bg-muted motion-safe:transition-opacity motion-safe:duration-300 ${loaded ? "opacity-100" : "opacity-0"}`}
       />

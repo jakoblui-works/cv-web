@@ -36,7 +36,7 @@ export const Processing: Story = {
     await expect(canvas.getByRole("status")).toBeVisible();
     await expect(canvas.queryByRole("link")).toBeNull();
     await expect(canvas.queryByRole("textbox")).toBeNull();
-    await expect(canvas.queryByTitle("Generated CV")).toBeNull();
+    await expect(canvas.queryByTitle("Assembled CV")).toBeNull();
   },
 };
 
@@ -57,7 +57,7 @@ export const Done: Story = {
     await expect(download).toHaveAttribute("href", pdfUrl);
     await expect(download).toHaveAttribute("download", args.fileName);
 
-    const frame = canvas.getByTitle("Generated CV");
+    const frame = canvas.getByTitle("Assembled CV");
     // The frame fades in once the viewer has loaded.
     await waitFor(() => expect(frame).toBeVisible());
     const [frameUrl, viewerParams] = (frame.getAttribute("src") ?? "").split(
@@ -74,7 +74,7 @@ export const Failed: Story = {
     await expect(canvas.getByRole("alert")).toHaveTextContent(/went wrong/i);
     await expect(canvas.queryByRole("link")).toBeNull();
     await expect(canvas.queryByRole("textbox")).toBeNull();
-    await expect(canvas.queryByTitle("Generated CV")).toBeNull();
+    await expect(canvas.queryByTitle("Assembled CV")).toBeNull();
 
     await userEvent.click(canvas.getByRole("button", { name: "Try again" }));
     await expect(args.onRetry).toHaveBeenCalledOnce();
@@ -140,7 +140,7 @@ export const DoneOnPhone: Story = {
     await expect(
       canvas.getByRole("link", { name: "Download PDF" }),
     ).toHaveAttribute("download", args.fileName);
-    await expect(canvas.queryByTitle("Generated CV")).toBeNull();
+    await expect(canvas.queryByTitle("Assembled CV")).toBeNull();
   },
 };
 

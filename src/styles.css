@@ -50,7 +50,7 @@
 
 /* Page header height, border included (`h-header`). Full-height layouts subtract it from the viewport. */
 @theme {
-  --spacing-header: 3.5rem;
+  --spacing-header: 4rem;
 }
 
 /* The header's "this opens a menu" hint: a small triangle in the bottom-right corner, in the text

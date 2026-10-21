@@ -29,7 +29,7 @@ const GenerateButton = ({ disabled }: { disabled: boolean }) => (
     className="mt-4 min-w-40 self-center px-6 text-base [view-transition-name:cv-generate]"
   >
     <SparklesIcon aria-hidden />
-    Generate
+    Assemble
   </Button>
 );
 
@@ -69,7 +69,7 @@ const CvEditor = ({ options, committed, failed }: CvEditorProps) => {
       <GenerateButton disabled={!canGenerate} />
       {failed && sameSelection(draft, committed) && (
         <p className="-mt-2 text-center text-sm text-destructive">
-          Couldn&rsquo;t generate the CV.
+          Couldn&rsquo;t assemble the CV.
         </p>
       )}
     </form>

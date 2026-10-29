@@ -30,3 +30,4 @@ React 19, Vite, TanStack Router (file routes in `src/routes`, `routeTree.gen.ts`
 
 ## Gotchas
 - Deploys build two images (`cv-web`, `cv-web-storybook`); storybook-host composes the Storybook.
+- The header, site switcher and shared theme tokens come from `@jakoblui-works/shared-ui` (GitHub Packages). Installing needs a token with `read:packages`, even though the package is public (see shared-ui's `CLAUDE.md`). CI uses `GITHUB_TOKEN`, and the Docker builds take it as `--secret id=npm_token,env=NODE_AUTH_TOKEN`. `styles.css` only holds cv-web's own palette and CSS. If `shadcn add` writes tokens into it, move the shared ones into shared-ui.

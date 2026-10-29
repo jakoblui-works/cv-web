@@ -170,8 +170,8 @@ importers:
         specifier: ^1.8.0
         version: 1.8.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@jakoblui-works/shared-ui':
-        specifier: ^0.1.1
-        version: 0.1.1(@base-ui/react@1.8.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(tailwindcss@4.3.3)
+        specifier: ^0.2.0
+        version: 0.2.0(@base-ui/react@1.8.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(tailwindcss@4.3.3)
       '@tailwindcss/vite':
         specifier: ^4.2.2
         version: 4.3.3(vite@8.3.0(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
@@ -805,8 +805,14 @@ packages:
   '@fontsource-variable/inter@5.3.0':
     resolution: {integrity: sha512-OupL48va4JNofb97w6NYeF9S7W/kHNKM0Er8Dem5nqi4jeOLrVJDoE8tZEpnMJmtkvNbB1EIPPwHcdkF6b1oUA==}
 
+  '@fontsource-variable/jetbrains-mono@5.3.0':
+    resolution: {integrity: sha512-F32xpS2NsGYoQi2ADSkKTgpJj7ozajsGgDJ8woTnqjmIB+dxDIqImjl4pXZVEExu8UFZ2ndhmX18EBS/hdz3Lw==}
+
   '@fontsource-variable/sora@5.3.0':
     resolution: {integrity: sha512-h8kHta4Z8SkfUGeI82TUy1n3rbrKpBRGwuk4t4qCwto5oEHxlbOFD2yGP+Df5fbmTXwKGn+o667vYp0E4K8Whw==}
+
+  '@fontsource-variable/space-grotesk@5.3.0':
+    resolution: {integrity: sha512-2IxmvfB08i9vnGB3Ym/AXvhRE+8XOjWMXIyDum03c+tPwH0FUoMNQfGpU8NXPxjbws0Vvss3AH0Zqt4oJBBAdw==}
 
   '@hono/node-server@2.1.1':
     resolution: {integrity: sha512-ELuehkj5VCBdgEw9zs+ivkKwyzzUCSQuE96YmiPvn1ECBoZCczbFXJLeEGMTYjphP6gydh4pHMqEYPVMYUVgQg==}
@@ -837,8 +843,8 @@ packages:
   '@internationalized/number@3.6.8':
     resolution: {integrity: sha512-8UmMFia46DUt+k97zKd9fKWXcWHR+k8ae3eYzILETuT2KbIvLyOfac7zesw+sJdRAAZ7Q9pM1Mk22aXp2LD0Ig==}
 
-  '@jakoblui-works/shared-ui@0.1.1':
-    resolution: {integrity: sha512-+FM5qhTn7o5YaUipyH0dvoDlzDmbGVozxaiaBnz4qr3Dh9DqAwaKpkMBpMJ6MAMSaxVs9R8QLZg2YhB0Ja207w==, tarball: https://npm.pkg.github.com/download/@jakoblui-works/shared-ui/0.1.1/f72d28f75b469854266cb9a1dbd03f37334b2829}
+  '@jakoblui-works/shared-ui@0.2.0':
+    resolution: {integrity: sha512-Hm0SOEuCf8gdLHgcAWrEzEAYSYk6sVeEPDcTG9l/kLFge7dmzFuX0hupBOtRF6nr9JzBWuHQgHejNW5copgsuw==, tarball: https://npm.pkg.github.com/download/@jakoblui-works/shared-ui/0.2.0/994a9f7bfdb2f86635624875027935a8bcf39065}
     peerDependencies:
       '@base-ui/react': ^1.8.0
       '@types/react': ^19.0.0
@@ -5196,7 +5202,11 @@ snapshots:
 
   '@fontsource-variable/inter@5.3.0': {}
 
+  '@fontsource-variable/jetbrains-mono@5.3.0': {}
+
   '@fontsource-variable/sora@5.3.0': {}
+
+  '@fontsource-variable/space-grotesk@5.3.0': {}
 
   '@hono/node-server@2.1.1(hono@4.13.8)':
     dependencies:
@@ -5222,11 +5232,13 @@ snapshots:
     dependencies:
       '@swc/helpers': 0.5.23
 
-  '@jakoblui-works/shared-ui@0.1.1(@base-ui/react@1.8.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(tailwindcss@4.3.3)':
+  '@jakoblui-works/shared-ui@0.2.0(@base-ui/react@1.8.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(tailwindcss@4.3.3)':
     dependencies:
       '@base-ui/react': 1.8.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@fontsource-variable/inter': 5.3.0
+      '@fontsource-variable/jetbrains-mono': 5.3.0
       '@fontsource-variable/sora': 5.3.0
+      '@fontsource-variable/space-grotesk': 5.3.0
       '@types/react': 19.3.0
       cn: 0.5.0
       react: 19.3.0

@@ -34,20 +34,20 @@ describe("customFetch", () => {
 
   describe("failed responses throw ApiError with the status and parsed body", () => {
     it("JSON validation error (422)", async () => {
-      const detail = [{ loc: ["body", "skill_ids", 0], msg: "Unknown id", type: "value_error" }];
+      const detail = [{ loc: ["body", "ids", 0], msg: "Unknown id", type: "value_error" }];
       respondWith(json({ detail }, 422));
 
-      const error = await failure(customFetch("/api/cv/generate", { schema: Task }));
+      const error = await failure(customFetch("/api/x/create", { schema: Task }));
       expect(error.status).toBe(422);
       expect(error.body).toEqual({ detail });
     });
 
     it("JSON error that doesn't match the success schema (503)", async () => {
-      respondWith(json({ detail: "Options not published" }, 503));
+      respondWith(json({ detail: "Not published yet" }, 503));
 
-      const error = await failure(customFetch("/api/cv/options", { schema: Task }));
+      const error = await failure(customFetch("/api/x/options", { schema: Task }));
       expect(error.status).toBe(503);
-      expect(error.body).toEqual({ detail: "Options not published" });
+      expect(error.body).toEqual({ detail: "Not published yet" });
     });
 
     it("plain-text error from the proxy (429)", async () => {
@@ -58,7 +58,7 @@ describe("customFetch", () => {
         }),
       );
 
-      const error = await failure(customFetch("/api/cv/generate", { schema: Task }));
+      const error = await failure(customFetch("/api/x/create", { schema: Task }));
       expect(error.status).toBe(429);
       expect(error.body).toBe("Too Many Requests");
     });
@@ -67,7 +67,7 @@ describe("customFetch", () => {
       const page = "<html><body>Bad Gateway</body></html>";
       respondWith(new Response(page, { status: 502, headers: { "content-type": "text/html" } }));
 
-      const error = await failure(customFetch("/api/cv/generate", { schema: Task }));
+      const error = await failure(customFetch("/api/x/create", { schema: Task }));
       expect(error.status).toBe(502);
       expect(error.body).toBe(page);
     });
@@ -89,7 +89,7 @@ describe("customFetch", () => {
       respondWith(json({ task_id: "abc", extra: "dropped" }, 202));
 
       const res = await customFetch<{ data: unknown; status: number; headers: Headers }>(
-        "/api/cv/generate",
+        "/api/x/create",
         { schema: Task },
       );
       expect(res.status).toBe(202);
@@ -101,7 +101,7 @@ describe("customFetch", () => {
     it("throw the validation error when the body doesn't match the schema", async () => {
       respondWith(json({ id: 1 }, 200));
 
-      await expect(customFetch("/api/cv/generate", { schema: Task })).rejects.toBeInstanceOf(
+      await expect(customFetch("/api/x/create", { schema: Task })).rejects.toBeInstanceOf(
         ZodError,
       );
     });
@@ -109,7 +109,7 @@ describe("customFetch", () => {
     it("return the body as is without a schema", async () => {
       respondWith(new Response("%PDF-1.4", { status: 200, headers: { "content-type": "application/pdf" } }));
 
-      const res = await customFetch<{ data: unknown }>("/api/cv/pdf/d", {});
+      const res = await customFetch<{ data: unknown }>("/api/x/file", {});
       expect(res.data).toBe("%PDF-1.4");
     });
 
@@ -125,7 +125,7 @@ describe("customFetch", () => {
   it("passes the request options to fetch, but not the schema", async () => {
     const fetchMock = respondWith(json({ task_id: "abc" }, 202));
 
-    await customFetch("/api/cv/generate", { method: "POST", body: "{}", schema: Task });
-    expect(fetchMock).toHaveBeenCalledWith("/api/cv/generate", { method: "POST", body: "{}" });
+    await customFetch("/api/x/create", { method: "POST", body: "{}", schema: Task });
+    expect(fetchMock).toHaveBeenCalledWith("/api/x/create", { method: "POST", body: "{}" });
   });
 });

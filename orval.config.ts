@@ -1,10 +1,11 @@
-// orval.config.ts
 import { defineConfig } from "orval";
 
+// The client for this app's endpoints, generated from the prod spec (only its `cv` tag) and
+// committed. CI regenerates it and fails if it differs, so it can't drift from the api.
 export default defineConfig({
   cv: {
     input: {
-      target: "https://cv.jakoblui.com/api/openapi.json",
+      target: "https://jakoblui.com/api/openapi.json",
       filters: { tags: ["cv"] },
     },
     output: {

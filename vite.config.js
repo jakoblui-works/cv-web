@@ -27,8 +27,8 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // The target includes any base path, so `/api` is always stripped:
-      // localhost:8000 serves /cv/..., prod serves /api/cv/... (Traefik strips /api).
+      // The target includes any base path, so `/api` is always stripped: localhost:8000 serves
+      // /cv/..., prod serves /api/cv/... (Traefik strips /api).
       "/api": {
         target: process.env.API_PROXY_TARGET ?? "http://localhost:8000",
         changeOrigin: true,
@@ -41,6 +41,7 @@ export default defineConfig({
       {
         extends: true,
         test: {
+          name: "unit",
           environment: "jsdom",
           globals: true,
           setupFiles: "./src/test-setup.ts",

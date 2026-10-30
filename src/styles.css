@@ -3,7 +3,7 @@
 @import "shadcn/tailwind.css";
 @import "@jakoblui-works/shared-ui/theme.css";
 
-/* Brand colour: change the palette name here (emerald → green, …) to rebrand. Light mode uses 700, dark mode 400 (see --primary). */
+/* Brand colour: change the palette name here (emerald → …) to rebrand. Light mode uses 700, dark mode 400 (see --primary in shared-ui's theme.css). */
 @theme {
   --color-primary-50: var(--color-emerald-50);
   --color-primary-100: var(--color-emerald-100);
@@ -16,6 +16,14 @@
   --color-primary-800: var(--color-emerald-800);
   --color-primary-900: var(--color-emerald-900);
   --color-primary-950: var(--color-emerald-950);
+}
+
+/* The app's own CSS goes below, a line away from the template's. */
+
+/* The prerendered page is the empty form. A link with a selection (`data-cv-link`, set in
+   `index.html`) opens the result layout, so it's hidden until the app replaces it. */
+[data-cv-link] [data-prerendered] {
+  visibility: hidden;
 }
 
 @keyframes cv-editor-out {

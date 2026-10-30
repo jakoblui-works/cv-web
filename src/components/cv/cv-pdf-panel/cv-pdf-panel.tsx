@@ -3,7 +3,7 @@ import { useState, type ComponentProps } from "react";
 
 import type { CvFailureReason, CvGeneration } from "@/api/cv";
 import { getCvGetPdfUrl } from "@/api/generated/cv/cv";
-import { CopyLinkField } from "@/components/copy-link-field";
+import { CopyLinkField } from "@/components/cv/copy-link-field/copy-link-field";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";

@@ -3,7 +3,6 @@ import { useState } from "react";
 import { expect, fn, screen, waitFor, within } from "storybook/test";
 
 import type { FormOptionsResponseOutput } from "@/api/generated/model";
-
 import type { CvSelection } from "@/lib/cv-search";
 
 import { CvForm, CvFormSkeleton } from "./cv-form";

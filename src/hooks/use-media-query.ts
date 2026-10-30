@@ -10,7 +10,12 @@ export const useMediaQuery = (query: string): boolean => {
     },
     [query],
   );
-  return useSyncExternalStore(subscribe, () => matchMedia(query).matches);
+  return useSyncExternalStore(
+    subscribe,
+    () => matchMedia(query).matches,
+    // No media to query while prerendering.
+    () => false,
+  );
 };
 
 /** Tailwind's `lg` breakpoint, where the result shows the PDF inline next to the form. */

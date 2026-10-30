@@ -1,0 +1,13 @@
+# Changes here will be overwritten by Copier; never edit by hand.
+_commit: v0.1.0
+_src_path: gh:jakoblui-works/web-template
+api_tag: cv
+app_name: cv-web
+description: Pick a role, concepts and skills, and get Jakob Lui's CV tailored to
+    them as a PDF.
+host: cv.jakoblui.com
+palette: emerald
+subdomain: cv
+theme_toggle: true
+title: Jakob Lui - CV Assembler
+use_api: true

@@ -1,9 +1,11 @@
 {
   "files.watcherExclude": {
-    "**/routeTree.gen.ts": true
+    "**/routeTree.gen.ts": true,
+    "src/api/generated/**": true
   },
   "search.exclude": {
-    "**/routeTree.gen.ts": true
+    "**/routeTree.gen.ts": true,
+    "src/api/generated/**": true
   },
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true,

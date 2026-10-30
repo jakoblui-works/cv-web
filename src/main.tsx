@@ -1,39 +1,42 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import {
-  RouterProvider,
-  createRouter,
-  defaultStringifySearch,
-} from "@tanstack/react-router";
+import { RouterProvider, deepEqual } from "@tanstack/react-router";
+import { RouterClient } from "@tanstack/react-router/ssr/client";
 import ReactDOM from "react-dom/client";
-import { routeTree } from "./routeTree.gen";
+
+import { createRouter } from "./router";
 import "./styles.css";
-// Set up a Router instance
-const router = createRouter({
-  routeTree,
-  defaultPreload: "intent",
-  scrollRestoration: true,
-  stringifySearch: (search) =>
-    defaultStringifySearch(search).replaceAll("%2C", ","),
-});
 
-// Register things for typesafety
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: typeof router;
-  }
-}
+const router = createRouter();
 
-const queryClient = new QueryClient();
+/**
+ * The search params a URL's routes read: only what their schemas validate (`_strictSearch`; a
+ * match's `search` also passes on every other param), so ones the app doesn't use (`?fbclid`,
+ * `?utm_source`) drop out. `null` if they don't validate, or the router no longer says.
+ */
+const searchFor = ({ pathname, search }: { pathname: string; search: string }) => {
+  const match = router.matchRoutes(pathname, router.options.parseSearch(search)).at(-1);
+  if (!match || match.searchError) return null;
+  return typeof match._strictSearch === "object" ? match._strictSearch : null;
+};
 
-const rootElement = document.getElementById("app")!;
+/** Whether this URL renders the same page as `url`: the same path and the same search params. */
+const rendersAs = (url: URL) => {
+  if (url.pathname !== location.pathname) return false;
+  const search = searchFor(url);
+  return search !== null && deepEqual(search, searchFor(location));
+};
 
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools />
-      <RouterProvider router={router} />
-    </QueryClientProvider>,
-  );
+// Built pages hold a prerendered page (see `prerender.tsx`), marked with the URL it was rendered
+// for. On a URL that renders the same it's hydrated, so it isn't drawn again. On any other (a
+// made-up path served the 404 page, search params the page renders differently) it would differ
+// from what the app renders, so it's replaced with a fresh render, as is the empty page in dev.
+// So is a link with a selection: the page stays hidden there until then (`data-cv-link`, styles.css).
+const prerendered = document.querySelector<HTMLElement>("[data-prerendered]");
+if (
+  prerendered?.dataset.prerendered &&
+  !document.documentElement.hasAttribute("data-cv-link") &&
+  rendersAs(new URL(prerendered.dataset.prerendered, location.origin))
+) {
+  ReactDOM.hydrateRoot(prerendered, <RouterClient router={router} />);
+} else {
+  ReactDOM.createRoot(document.getElementById("app")!).render(<RouterProvider router={router} />);
 }

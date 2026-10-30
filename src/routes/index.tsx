@@ -6,6 +6,7 @@ import { useCvGeneration } from "@/api/cv";
 import { ApiError } from "@/api/fetcher";
 import { useCvGetOptions } from "@/api/generated/cv/cv";
 import type { FormOptionsResponseOutput } from "@/api/generated/model";
+import { AppHeader } from "@/components/app-header";
 import { CvForm, CvFormSkeleton } from "@/components/cv-form";
 import { CvPdfPanel } from "@/components/cv-pdf-panel";
 import { OptionsLoadError } from "@/components/options-load-error";
@@ -92,9 +93,7 @@ const HomeComponent = () => {
 
   const { generation, retry } = useCvGeneration(committed);
   const largeScreen = useMediaQuery(LARGE_SCREEN_QUERY);
-  const inlinePdf = largeScreen && navigator.pdfViewerEnabled;
-  const shareUrl =
-    window.location.origin + useLocation({ select: (l) => l.href });
+  const href = useLocation({ select: (l) => l.href });
 
   const options = optionsQuery.data?.data;
 
@@ -118,28 +117,38 @@ const HomeComponent = () => {
 
   if (!isValidSelection(committed)) {
     return (
-      <main className="mx-auto w-full max-w-xl px-4 pt-24 pb-12 sm:pt-36">
-        {editor}
-      </main>
+      <>
+        <AppHeader />
+        <main className="mx-auto w-full max-w-xl px-4 pt-24 pb-12 sm:pt-36">
+          {editor}
+        </main>
+      </>
     );
   }
 
+  // Below the return above: the prerendered page is the editing layout, and Node has no `window`.
+  const inlinePdf = largeScreen && navigator.pdfViewerEnabled;
+  const shareUrl = window.location.origin + href;
+
   return (
-    <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-8 lg:h-[calc(100dvh-var(--spacing-header))] lg:grid-cols-[minmax(0,22rem)_auto_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
-      <div className="lg:-m-1 lg:overflow-y-auto lg:p-1 lg:pt-16">{editor}</div>
-      <Separator orientation="vertical" className="hidden lg:block" />
-      <div className="order-first lg:order-0 [view-transition-name:cv-result]">
-        <CvPdfPanel
-          generation={generation}
-          shareUrl={shareUrl}
-          fileName={`Jakob-Lui-CV-${committed.titleId}.pdf`}
-          inline={inlinePdf}
-          onRetry={retry}
-          // Back to the editing layout with an empty form.
-          onClear={() => navigate({ search: {} })}
-        />
-      </div>
-    </main>
+    <>
+      <AppHeader />
+      <main className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-8 lg:h-[calc(100dvh-var(--spacing-header))] lg:grid-cols-[minmax(0,22rem)_auto_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)]">
+        <div className="lg:-m-1 lg:overflow-y-auto lg:p-1 lg:pt-16">{editor}</div>
+        <Separator orientation="vertical" className="hidden lg:block" />
+        <div className="order-first lg:order-0 [view-transition-name:cv-result]">
+          <CvPdfPanel
+            generation={generation}
+            shareUrl={shareUrl}
+            fileName={`Jakob-Lui-CV-${committed.titleId}.pdf`}
+            inline={inlinePdf}
+            onRetry={retry}
+            // Back to the editing layout with an empty form.
+            onClear={() => navigate({ search: {} })}
+          />
+        </div>
+      </main>
+    </>
   );
 };
 

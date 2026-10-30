@@ -27,7 +27,7 @@ const selectedText = (input: HTMLElement) => {
 };
 
 const meta: Meta<typeof CopyLinkField> = {
-  title: "Components/CopyLinkField",
+  title: "CV/CopyLinkField",
   component: CopyLinkField,
   args: { url: "https://cv.example.com/?title=title-a&skills=skill-a1" },
   decorators: [

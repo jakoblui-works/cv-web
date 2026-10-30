@@ -17,6 +17,9 @@ pnpm generate:api      # Orval → src/api/generated (never edit by hand)
 ## Stack
 React 19, Vite, TanStack Router (file routes in `src/routes`, `routeTree.gen.ts` is generated), TanStack Query, Tailwind 4, shadcn on Base UI (`src/components`), zod, Storybook 10.
 
+## Layout
+`src/components/`: one folder per component with its stories, tests and single-use helpers, files named after it (no `index.tsx`, no barrels), grouped by feature (`cv/`); the stories' titles follow the folders. `ui/` stays flat, since the shadcn CLI expects it.
+
 ## API client
 - Orval reads the api's OpenAPI spec, filtered to the `cv` tag. It generates react-query hooks with the `fetch` client, zod schemas (`src/api/generated/model`) and runtime validation, with base URL `/api`.
 - Hook names come from operationIds (`cv_get_options` → `cvGetOptions`, …).

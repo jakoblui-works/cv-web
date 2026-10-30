@@ -6,7 +6,8 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+
+import { useCopyToClipboard } from "./use-copy-to-clipboard";
 
 const COPIED_FOR_MS = 2000;
 

@@ -38,6 +38,7 @@ export type CvFailureReason =
   | "timed-out"
   | "error";
 
+/** A 429 comes from Traefik, not the api, so its body isn't the api's error shape; a 422 is FastAPI's `HTTPValidationError`. */
 export const failureReason = (error: unknown): CvFailureReason => {
   if (error instanceof GenerationTimeoutError) return "timed-out";
   if (!(error instanceof ApiError)) return "error";
